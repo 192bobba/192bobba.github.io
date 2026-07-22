@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Sommeil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:#0A0D14; }
+  * { box-sizing: border-box; }
+  input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; }
+</style>
+</head>
+<body>
+<div id="root" style="color:#8890A6;font-family:sans-serif;font-size:14px;padding:24px;">Chargement de l'application…</div>
+
+<script>
+  window.onerror = function(msg, url, line, col, error) {
+    document.getElementById('root').innerHTML =
+      '<div style="color:#E08585;padding:20px;font-family:sans-serif;font-size:13px;line-height:1.6;">' +
+      '<b>Erreur au chargement :</b><br>' + msg + '<br>(ligne ' + line + ')</div>';
+  };
+</script>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js" onerror="document.getElementById('root').innerHTML='<div style=\'color:#E08585;padding:20px;font-family:sans-serif;\'>Impossible de charger React (verifie ta connexion internet)</div>'"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" onerror="document.getElementById('root').innerHTML='<div style=\'color:#E08585;padding:20px;font-family:sans-serif;\'>Impossible de charger ReactDOM (verifie ta connexion internet)</div>'"></script>
+
+<script>
+const h = React.createElement;
+const { useState, useEffect, useMemo } = React;
+
+const TARGET_HOURS = 8;
+const STORAGE_KEY = "sleep_entries";
+const SETTINGS_KEY = "sleep_settings";
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function toMinutes(hhmm) { const p = hhmm.split(":").map(Number); return p[0] * 60 + p[1]; }
+function computeDuration(bedTime, wakeTime) {
+  let b = toMinutes(bedTime), w = toMinutes(wakeTime);
+  if (w <= b) w += 24 * 60;
+  return Math.round(((w - b) / 60) * 100) / 100;
+}
+function durationScore(d) {
+  if (d >= 7 && d <= 9) return 100;
+  if (d < 7) return Math.max(0, 100 - (7 - d) * 25);
+  return Math.max(0, 100 - (d - 9) * 20);
+}
+function computeScore(duration, quality) {
+  return Math.round(durationScore(duration) * 0.6 + quality * 10 * 0.4);
+}
+function tier(score) {
+  if (score >= 80) return "haut";
+  if (score >= 65) return "moyenHaut";
+  if (score >= 50) return "moyen";
+  return "bas";
+}
+const TIER_STYLES = {
+  haut: { grad: ["#5EEAD4", "#8FD6C4"], glow: "94,234,212", label: "Excellent" },
+  moyenHaut: { grad: ["#8C9EFF", "#C9B6E4"], glow: "140,158,255", label: "Bon" },
+  moyen: { grad: ["#E7B56C", "#E89B6C"], glow: "231,181,108", label: "Moyen" },
+  bas: { grad: ["#E08585", "#C77474"], glow: "224,133,133", label: "Fragile" },
+};
+function formatDateFR(dateStr) {
+  const d = new Date(dateStr + "T12:00:00");
+  return d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+}
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+function minutesToHHMM(mins) {
+  mins = ((mins % 1440) + 1440) % 1440;
+  const hh = Math.floor(mins / 60), mm = Math.round(mins % 60);
+  return String(hh).padStart(2, "0") + ":" + String(mm).padStart(2, "0");
+}
+
+async function storageGet(key) {
+  const v = localStorage.getItem(key);
+  if (v === null) throw new Error("not found");
+  return { value: v };
+}
+async function storageSet(key, value) {
+  localStorage.setItem(key, value);
+  return { key, value };
+}
+
+const colors = { bg: "#0A0D14", surface: "#12151F", surface2: "#1A1E2B", border: "#242938", text: "#E7E9F2", textMuted: "#8890A6", textFaint: "#545B70" };
+const S = {
+  colors,
+  app: { minHeight: "100vh", background: "radial-gradient(circle at 50% -10%, #161B2A 0%, " + colors.bg + " 55%)", padding: "20px 0 40px", boxSizing: "border-box" },
+  container: { maxWidth: 430, margin: "0 auto", padding: "16px 16px 0", display: "flex", flexDirection: "column", gap: 12 },
+  header: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 2px 6px" },
+  eyebrow: { fontFamily: "Inter, sans-serif", fontSize: 11.5, letterSpacing: 1.5, textTransform: "uppercase", color: colors.textMuted },
+  settingsBtn: { background: colors.surface2, border: "1px solid " + colors.border, color: colors.textMuted, fontFamily: "Inter, sans-serif", fontSize: 12, borderRadius: 20, padding: "6px 12px", cursor: "pointer" },
+  card: { background: colors.surface, border: "1px solid " + colors.border, borderRadius: 18, padding: "16px 16px" },
+  gaugeCard: { display: "flex", flexDirection: "column", alignItems: "center" },
+  cardLabel: { fontFamily: "Inter, sans-serif", fontSize: 11.5, letterSpacing: 1, textTransform: "uppercase", color: colors.textMuted },
+  hint: { fontFamily: "Inter, sans-serif", fontSize: 11, color: colors.textFaint, marginTop: 8 },
+  smallLabel: { fontFamily: "Inter, sans-serif", fontSize: 11.5, color: colors.textMuted, display: "block", marginBottom: 5 },
+  divider: { height: 1, background: colors.border, margin: "12px 0" },
+  timeInput: { width: "100%", background: colors.surface2, border: "1px solid " + colors.border, color: colors.text, fontFamily: "Inter, sans-serif", fontSize: 15, borderRadius: 10, padding: "9px 10px", boxSizing: "border-box", colorScheme: "dark" },
+  slider: { width: "100%", marginTop: 8, accentColor: "#8C9EFF" },
+  saveBtn: { width: "100%", marginTop: 16, background: "linear-gradient(135deg, #6E7BD6, #8C9EFF)", border: "none", color: "#0A0D14", fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: 14, borderRadius: 12, padding: "12px", cursor: "pointer" },
+  historyRow: { display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid " + colors.border, paddingBottom: 8 },
+  deleteBtn: { background: "none", border: "none", cursor: "pointer", padding: 4 },
+  footer: { fontFamily: "Inter, sans-serif", fontSize: 11, color: colors.textFaint, textAlign: "center", padding: "8px 20px 4px", lineHeight: 1.5 },
+};
+
+function TrashIcon(props) {
+  return h("svg", { width: 13, height: 13, viewBox: "0 0 24 24", fill: "none", stroke: props.color, strokeWidth: "2" },
+    h("path", { d: "M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6" })
+  );
+}
+function TrendIcon(props) {
+  if (props.trend === "hausse") return h("span", { style: { color: "#8FD6C4", fontSize: 15 } }, "\u25B2");
+  if (props.trend === "baisse") return h("span", { style: { color: "#E08585", fontSize: 15 } }, "\u25BC");
+  return h("span", { style: { color: "#8890A6", fontSize: 15 } }, "\u2013");
+}
+function Chip(props) {
+  return h("div", { style: { textAlign: "center" } },
+    h("div", { style: { fontFamily: "Inter, sans-serif", fontSize: 13, color: "#E7E9F2", fontWeight: 600 } }, props.value),
+    h("div", { style: { fontFamily: "Inter, sans-serif", fontSize: 10, color: "#8890A6", textTransform: "uppercase", letterSpacing: 0.8, marginTop: 2 } }, props.label)
+  );
+}
+function StatCard(props) {
+  return h("div", { style: Object.assign({}, S.card, { flex: 1, padding: "14px 12px", textAlign: "center" }) },
+    h("div", { style: { fontFamily: "Fraunces, serif", fontSize: 22, color: "#E7E9F2", minHeight: 26, display: "flex", alignItems: "center", justifyContent: "center" } }, props.value),
+    h("div", { style: { fontFamily: "Inter, sans-serif", fontSize: 10.5, color: "#8890A6", marginTop: 4 } }, props.label)
+  );
+}
+
+function SleepScoreApp() {
+  const [entries, setEntries] = useState([]);
+  const [wakeTarget, setWakeTarget] = useState("07:00");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({ bedTime: "23:00", wakeTime: "07:00", quality: 6 });
+  const [showSettings, setShowSettings] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(function () {
+    (async function () {
+      try {
+        const res = await storageGet(STORAGE_KEY);
+        if (res && res.value) setEntries(JSON.parse(res.value));
+      } catch (e) {}
+      try {
+        const res = await storageGet(SETTINGS_KEY);
+        if (res && res.value) {
+          const s = JSON.parse(res.value);
+          if (s.wakeTarget) setWakeTarget(s.wakeTarget);
+        }
+      } catch (e) {}
+      setLoading(false);
+    })();
+  }, []);
+
+  async function persistEntries(next) {
+    setEntries(next);
+    try { await storageSet(STORAGE_KEY, JSON.stringify(next)); }
+    catch (e) { setError("Impossible d'enregistrer. Reessaie."); }
+  }
+  async function persistSettings(next) {
+    setWakeTarget(next.wakeTarget);
+    try { await storageSet(SETTINGS_KEY, JSON.stringify(next)); }
+    catch (e) { setError("Impossible d'enregistrer les reglages."); }
+  }
+
+  async function saveEntry() {
+    setSaving(true); setError("");
+    const duration = computeDuration(form.bedTime, form.wakeTime);
+    if (duration <= 0 || duration > 16) {
+      setError("Les horaires saisis semblent incorrects.");
+      setSaving(false);
+      return;
+    }
+    const score = computeScore(duration, form.quality);
+    const date = todayISO();
+    const existingIdx = entries.findIndex(function (e) { return e.date === date; });
+    const entry = { id: existingIdx >= 0 ? entries[existingIdx].id : uid(), date: date, bedTime: form.bedTime, wakeTime: form.wakeTime, duration: duration, quality: form.quality, score: score };
+    let next;
+    if (existingIdx >= 0) { next = entries.slice(); next[existingIdx] = entry; }
+    else { next = entries.concat([entry]); }
+    next.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    next = next.slice(0, 60);
+    await persistEntries(next);
+    setSaving(false);
+  }
+  async function deleteEntry(id) { await persistEntries(entries.filter(function (e) { return e.id !== id; })); }
+
+  const sorted = useMemo(function () { return entries.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }); }, [entries]);
+  const now = Date.now();
+  function withinDays(dateStr, days) { return (now - new Date(dateStr + "T12:00:00").getTime()) / 86400000 <= days; }
+  const last7 = sorted.filter(function (e) { return withinDays(e.date, 7); });
+  const last14 = sorted.filter(function (e) { return withinDays(e.date, 14); });
+  const avgScore7 = last7.length ? Math.round(last7.reduce(function (s, e) { return s + e.score; }, 0) / last7.length) : null;
+  const avgDuration7 = last7.length ? Math.round((last7.reduce(function (s, e) { return s + e.duration; }, 0) / last7.length) * 10) / 10 : null;
+
+  const sleepDebt = useMemo(function () {
+    const raw = last14.reduce(function (s, e) { return s + Math.max(0, TARGET_HOURS - e.duration); }, 0);
+    return Math.round(Math.min(raw, 20) * 10) / 10;
+  }, [last14]);
+
+  const trend = useMemo(function () {
+    if (sorted.length < 4) return "stable";
+    const recent = sorted.slice(0, 3), prior = sorted.slice(3, 7);
+    if (!prior.length) return "stable";
+    const avgRecent = recent.reduce(function (s, e) { return s + e.score; }, 0) / recent.length;
+    const avgPrior = prior.reduce(function (s, e) { return s + e.score; }, 0) / prior.length;
+    if (avgRecent - avgPrior > 6) return "hausse";
+    if (avgRecent - avgPrior < -6) return "baisse";
+    return "stable";
+  }, [sorted]);
+
+  const recommendedBedtime = useMemo(function () {
+    const extra = Math.min(sleepDebt * 0.25, 2);
+    const targetTonight = TARGET_HOURS + Math.round(extra * 4) / 4;
+    const bedMin = toMinutes(wakeTarget) - targetTonight * 60;
+    return { time: minutesToHHMM(bedMin), hours: Math.round(targetTonight * 4) / 4 };
+  }, [sleepDebt, wakeTarget]);
+
+  const insight = useMemo(function () {
+    if (avgScore7 === null) return "Ajoute ta premiere nuit pour commencer a suivre ton sommeil.";
+    const t = tier(avgScore7);
+    let base;
+    if (t === "haut") { base = "Ton sommeil est excellent ces derniers temps."; if (sleepDebt < 3) base += " Tu peux te permettre une nuit plus courte sans trop de consequences."; }
+    else if (t === "moyenHaut") base = "Ton sommeil est globalement bon ces derniers jours.";
+    else if (t === "moyen") base = "Ton sommeil est moyen en ce moment, reste attentif a ta regularite.";
+    else base = "Ton sommeil est fragile en ce moment.";
+    if (sleepDebt >= 8) base += " Ta dette de sommeil est elevee, essaie de te coucher plus tot cette semaine.";
+    else if (sleepDebt >= 4) base += " Une petite dette de sommeil s'accumule, une nuit plus longue serait utile.";
+    if (trend === "hausse") base += " Bonne nouvelle : la tendance est a l'amelioration.";
+    if (trend === "baisse") base += " Attention, la tendance est plutot a la baisse recemment.";
+    return base;
+  }, [avgScore7, sleepDebt, trend]);
+
+  const latest = sorted[0];
+  const latestTier = latest ? tier(latest.score) : "moyen";
+  const ts = TIER_STYLES[latestTier];
+
+  if (loading) {
+    return h("div", { style: Object.assign({}, S.app, { alignItems: "center", justifyContent: "center", display: "flex" }) },
+      h("div", { style: { color: S.colors.textMuted, fontFamily: "Inter, sans-serif" } }, "Chargement\u2026")
+    );
+  }
+
+  const circumference = 2 * Math.PI * 76;
+
+  return h("div", { style: S.app },
+    h("div", { style: S.container },
+      h("header", { style: S.header },
+        h("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+          h("span", { style: { fontSize: 16 } }, "\uD83C\uDF19"),
+          h("span", { style: S.eyebrow }, "Suivi du sommeil")
+        ),
+        h("button", { onClick: function () { setShowSettings(function (v) { return !v; }); }, style: S.settingsBtn }, wakeTarget)
+      ),
+
+      showSettings && h("div", { style: S.card },
+        h("div", { style: S.cardLabel }, "Heure de reveil habituelle"),
+        h("input", { type: "time", value: wakeTarget, onChange: function (e) { persistSettings({ wakeTarget: e.target.value }); }, style: S.timeInput }),
+        h("div", { style: S.hint }, "Utilisee pour calculer ton heure de coucher recommandee.")
+      ),
+
+      h("div", { style: Object.assign({}, S.card, S.gaugeCard) },
+        h("div", { style: { position: "relative", width: 176, height: 176, margin: "4px auto 10px" } },
+          h("div", { style: { position: "absolute", inset: -18, borderRadius: "50%", background: "radial-gradient(circle, rgba(" + ts.glow + ",0.35) 0%, rgba(" + ts.glow + ",0) 70%)", filter: "blur(2px)" } }),
+          h("svg", { width: "176", height: "176", viewBox: "0 0 176 176", style: { position: "relative" } },
+            h("defs", null,
+              h("linearGradient", { id: "ringGrad", x1: "0%", y1: "0%", x2: "100%", y2: "100%" },
+                h("stop", { offset: "0%", stopColor: ts.grad[0] }),
+                h("stop", { offset: "100%", stopColor: ts.grad[1] })
+              )
+            ),
+            h("circle", { cx: 88, cy: 88, r: 76, fill: "none", stroke: S.colors.surface2, strokeWidth: 12 }),
+            h("circle", {
+              cx: 88, cy: 88, r: 76, fill: "none", stroke: "url(#ringGrad)", strokeWidth: 12, strokeLinecap: "round",
+              strokeDasharray: circumference,
+              strokeDashoffset: latest ? circumference * (1 - latest.score / 100) : circumference,
+              transform: "rotate(-90 88 88)", style: { transition: "stroke-dashoffset 0.6s ease" }
+            })
+          ),
+          h("div", { style: { position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" } },
+            h("div", { style: { fontFamily: "Fraunces, serif", fontSize: 48, fontWeight: 500, color: S.colors.text, lineHeight: 1 } }, latest ? latest.score : "\u2014"),
+            h("div", { style: { fontFamily: "Inter, sans-serif", fontSize: 11, letterSpacing: 1.5, color: S.colors.textMuted, marginTop: 4, textTransform: "uppercase" } }, latest ? ts.label : "Aucune donnee")
+          )
+        ),
+        latest && h("div", { style: { display: "flex", justifyContent: "center", gap: 18, marginTop: 6 } },
+          h(Chip, { label: "Duree", value: latest.duration + "h" }),
+          h(Chip, { label: "Ressenti", value: latest.quality + "/10" }),
+          h(Chip, { label: "Nuit du", value: formatDateFR(latest.date) })
+        )
+      ),
+
+      h("div", { style: Object.assign({}, S.card, { borderLeft: "3px solid rgb(" + ts.glow + ")", display: "flex", gap: 10 }) },
+        h("span", { style: { fontSize: 15 } }, "\u2728"),
+        h("div", { style: { fontFamily: "Inter, sans-serif", fontSize: 13.5, color: S.colors.text, lineHeight: 1.5 } }, insight)
+      ),
+
+      h("div", { style: S.card },
+        h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline" } },
+          h("div", { style: S.cardLabel }, "Dette de sommeil (14j)"),
+          h("div", { style: { fontFamily: "Fraunces, serif", fontSize: 22, color: sleepDebt >= 8 ? "#E08585" : S.colors.text } }, sleepDebt + "h")
+        ),
+        h("div", { style: S.divider }),
+        h("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" } },
+          h("div", null,
+            h("div", { style: S.cardLabel }, "Coucher recommande ce soir"),
+            h("div", { style: { fontFamily: "Fraunces, serif", fontSize: 26, color: S.colors.text, marginTop: 2 } }, recommendedBedtime.time)
+          ),
+          h("div", { style: { textAlign: "right", fontFamily: "Inter, sans-serif", fontSize: 11.5, color: S.colors.textMuted, maxWidth: 140 } },
+            "pour " + recommendedBedtime.hours + "h de sommeil avant ton reveil a " + wakeTarget
+          )
+        )
+      ),
+
+      h("div", { style: S.card },
+        h("div", { style: S.cardLabel }, "Nuit derniere"),
+        h("div", { style: { display: "flex", gap: 10, marginTop: 10 } },
+          h("div", { style: { flex: 1 } },
+            h("label", { style: S.smallLabel }, "Coucher"),
+            h("input", { type: "time", value: form.bedTime, onChange: function (e) { setForm(Object.assign({}, form, { bedTime: e.target.value })); }, style: S.timeInput })
+          ),
+          h("div", { style: { flex: 1 } },
+            h("label", { style: S.smallLabel }, "Reveil"),
+            h("input", { type: "time", value: form.wakeTime, onChange: function (e) { setForm(Object.assign({}, form, { wakeTime: e.target.value })); }, style: S.timeInput })
+          )
+        ),
+        h("div", { style: { marginTop: 16 } },
+          h("div", { style: { display: "flex", justifyContent: "space-between" } },
+            h("label", { style: S.smallLabel }, "Qualite ressentie"),
+            h("span", { style: { fontFamily: "Inter, sans-serif", fontSize: 12.5, color: S.colors.text, fontWeight: 600 } }, form.quality + "/10")
+          ),
+          h("input", { type: "range", min: 1, max: 10, value: form.quality, onChange: function (e) { setForm(Object.assign({}, form, { quality: Number(e.target.value) })); }, style: S.slider })
+        ),
+        error && h("div", { style: { color: "#E08585", fontFamily: "Inter, sans-serif", fontSize: 12.5, marginTop: 10 } }, error),
+        h("button", { onClick: saveEntry, disabled: saving, style: S.saveBtn }, saving ? "Enregistrement\u2026" : "Enregistrer cette nuit")
+      ),
+
+      sorted.length > 0 && h("div", { style: S.card },
+        h("div", { style: S.cardLabel }, "Historique"),
+        h("div", { style: { display: "flex", alignItems: "flex-end", gap: 5, height: 64, marginTop: 12 } },
+          last14.slice().reverse().map(function (e) {
+            const t = tier(e.score), grad = TIER_STYLES[t].grad;
+            return h("div", { key: e.id, title: formatDateFR(e.date) + " \u2014 " + e.score, style: { flex: 1, height: Math.max(6, (e.score / 100) * 64) + "px", background: "linear-gradient(180deg, " + grad[0] + ", " + grad[1] + ")", borderRadius: 3, opacity: 0.9 } });
+          })
+        ),
+        h("div", { style: { marginTop: 16, display: "flex", flexDirection: "column", gap: 8 } },
+          sorted.slice(0, 8).map(function (e) {
+            return h("div", { key: e.id, style: S.historyRow },
+              h("div", { style: { width: 64, fontFamily: "Inter, sans-serif", fontSize: 12, color: S.colors.textMuted } }, formatDateFR(e.date)),
+              h("div", { style: { flex: 1, fontFamily: "Inter, sans-serif", fontSize: 12.5, color: S.colors.text } }, e.duration + "h \u00B7 qualite " + e.quality + "/10"),
+              h("div", { style: { fontFamily: "Fraunces, serif", fontSize: 15, color: S.colors.text, marginRight: 8 } }, e.score),
+              h("button", { onClick: function () { deleteEntry(e.id); }, style: S.deleteBtn }, h(TrashIcon, { color: S.colors.textFaint }))
+            );
+          })
+        )
+      ),
+
+      last7.length > 0 && h("div", { style: { display: "flex", gap: 10 } },
+        h(StatCard, { label: "Score moyen (7j)", value: avgScore7 }),
+        h(StatCard, { label: "Duree moyenne (7j)", value: avgDuration7 + "h" }),
+        h(StatCard, { label: "Tendance", value: h(TrendIcon, { trend: trend }) })
+      ),
+
+      h("div", { style: S.footer }, "7-9h de sommeil et regularite du coucher sont les reperes recommandes pour un adulte.")
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(h(SleepScoreApp));
+</script>
+</body>
+</html>
