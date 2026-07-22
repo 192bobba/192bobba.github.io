@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Sommeil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:#0A0D14; }
+  * { box-sizing: border-box; }
+  input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo } = React;
+
+const TARGET_HOURS = 8;
+const STORAGE_KEY = "sleep_entries";
+const SETTINGS_KEY = "sleep_settings";
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function toMinutes(hhmm) { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; }
+function computeDuration(bedTime, wakeTime) {
+  let b = toMinutes(bedTime), w = toMinutes(wakeTime);
+  if (w <= b) w += 24 * 60;
+  return Math.round(((w - b) / 60) * 100) / 100;
+}
+function durationScore(d) {
+  if (d >= 7 && d <= 9) return 100;
+  if (d < 7) return Math.max(0, 100 - (7 - d) * 25);
+  return Math.max(0, 100 - (d - 9) * 20);
+}
+function computeScore(duration, quality) {
+  return Math.round(durationScore(duration) * 0.6 + quality * 10 * 0.4);
+}
+function tier(score) {
+  if (score >= 80) return "haut";
+  if (score >= 65) return "moyenHaut";
+  if (score >= 50) return "moyen";
+  return "bas";
+}
+const TIER_STYLES = {
+  haut: { grad: ["#5EEAD4", "#8FD6C4"], glow: "94,234,212", label: "Excellent" },
+  moyenHaut: { grad: ["#8C9EFF", "#C9B6E4"], glow: "140,158,255", label: "Bon" },
+  moyen: { grad: ["#E7B56C", "#E89B6C"], glow: "231,181,108", label: "Moyen" },
+  bas: { grad: ["#E08585", "#C77474"], glow: "224,133,133", label: "Fragile" },
+};
+function formatDateFR(dateStr) {
+  const d = new Date(dateStr + "T12:00:00");
+  return d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+}
+function todayISO() { return new Date().toISOString().slice(0, 10); }
+function minutesToHHMM(mins) {
+  mins = ((mins % 1440) + 1440) % 1440;
+  const h = Math.floor(mins / 60), m = Math.round(mins % 60);
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+// --- stockage local (remplace window.storage) ---
+async function storageGet(key) {
+  const v = localStorage.getItem(key);
+  if (v === null) throw new Error("not found");
+  return { value: v };
+}
+async function storageSet(key, value) {
+  localStorage.setItem(key, value);
+  return { key, value };
+}
+
+function TrashIcon({ color }) {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2">
+      <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6" />
+    </svg>
+  );
+}
+function TrendIcon({ trend }) {
+  if (trend === "hausse") return <span style={{ color: "#8FD6C4", fontSize: 15 }}>▲</span>;
+  if (trend === "baisse") return <span style={{ color: "#E08585", fontSize: 15 }}>▼</span>;
+  return <span style={{ color: "#8890A6", fontSize: 15 }}>–</span>;
+}
+
+function SleepScoreApp() {
+  const [entries, setEntries] = useState([]);
+  const [wakeTarget, setWakeTarget] = useState("07:00");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({ bedTime: "23:00", wakeTime: "07:00", quality: 6 });
+  const [showSettings, setShowSettings] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await storageGet(STORAGE_KEY);
+        if (res && res.value) setEntries(JSON.parse(res.value));
+      } catch (e) {}
+      try {
+        const res = await storageGet(SETTINGS_KEY);
+        if (res && res.value) {
+          const s = JSON.parse(res.value);
+          if (s.wakeTarget) setWakeTarget(s.wakeTarget);
+        }
+      } catch (e) {}
+      setLoading(false);
+    })();
+  }, []);
+
+  async function persistEntries(next) {
+    setEntries(next);
+    try { await storageSet(STORAGE_KEY, JSON.stringify(next)); }
+    catch (e) { setError("Impossible d'enregistrer. Réessaie."); }
+  }
+  async function persistSettings(next) {
+    setWakeTarget(next.wakeTarget);
+    try { await storageSet(SETTINGS_KEY, JSON.stringify(next)); }
+    catch (e) { setError("Impossible d'enregistrer les réglages."); }
+  }
+
+  async function saveEntry() {
+    setSaving(true); setError("");
+    const duration = computeDuration(form.bedTime, form.wakeTime);
+    if (duration <= 0 || duration > 16) {
+      setError("Les horaires saisis semblent incorrects.");
+      setSaving(false);
+      return;
+    }
+    const score = computeScore(duration, form.quality);
+    const date = todayISO();
+    const existingIdx = entries.findIndex((e) => e.date === date);
+    const entry = { id: existingIdx >= 0 ? entries[existingIdx].id : uid(), date, bedTime: form.bedTime, wakeTime: form.wakeTime, duration, quality: form.quality, score };
+    let next;
+    if (existingIdx >= 0) { next = [...entries]; next[existingIdx] = entry; }
+    else { next = [...entries, entry]; }
+    next.sort((a, b) => (a.date < b.date ? 1 : -1));
+    next = next.slice(0, 60);
+    await persistEntries(next);
+    setSaving(false);
+  }
+  async function deleteEntry(id) { await persistEntries(entries.filter((e) => e.id !== id)); }
+
+  const sorted = useMemo(() => [...entries].sort((a, b) => (a.date < b.date ? 1 : -1)), [entries]);
+  const now = Date.now();
+  const withinDays = (dateStr, days) => (now - new Date(dateStr + "T12:00:00").getTime()) / 86400000 <= days;
+  const last7 = sorted.filter((e) => withinDays(e.date, 7));
+  const last14 = sorted.filter((e) => withinDays(e.date, 14));
+  const avgScore7 = last7.length ? Math.round(last7.reduce((s, e) => s + e.score, 0) / last7.length) : null;
+  const avgDuration7 = last7.length ? Math.round((last7.reduce((s, e) => s + e.duration, 0) / last7.length) * 10) / 10 : null;
+
+  const sleepDebt = useMemo(() => {
+    const raw = last14.reduce((s, e) => s + Math.max(0, TARGET_HOURS - e.duration), 0);
+    return Math.round(Math.min(raw, 20) * 10) / 10;
+  }, [last14]);
+
+  const trend = useMemo(() => {
+    if (sorted.length < 4) return "stable";
+    const recent = sorted.slice(0, 3), prior = sorted.slice(3, 7);
+    if (!prior.length) return "stable";
+    const avgRecent = recent.reduce((s, e) => s + e.score, 0) / recent.length;
+    const avgPrior = prior.reduce((s, e) => s + e.score, 0) / prior.length;
+    if (avgRecent - avgPrior > 6) return "hausse";
+    if (avgRecent - avgPrior < -6) return "baisse";
+    return "stable";
+  }, [sorted]);
+
+  const recommendedBedtime = useMemo(() => {
+    const extra = Math.min(sleepDebt * 0.25, 2);
+    const targetTonight = TARGET_HOURS + Math.round(extra * 4) / 4;
+    const bedMin = toMinutes(wakeTarget) - targetTonight * 60;
+    return { time: minutesToHHMM(bedMin), hours: Math.round(targetTonight * 4) / 4 };
+  }, [sleepDebt, wakeTarget]);
+
+  const insight = useMemo(() => {
+    if (avgScore7 === null) return "Ajoute ta première nuit pour commencer à suivre ton sommeil.";
+    const t = tier(avgScore7);
+    let base;
+    if (t === "haut") { base = "Ton sommeil est excellent ces derniers temps."; if (sleepDebt < 3) base += " Tu peux te permettre une nuit plus courte sans trop de conséquences."; }
+    else if (t === "moyenHaut") base = "Ton sommeil est globalement bon ces derniers jours.";
+    else if (t === "moyen") base = "Ton sommeil est moyen en ce moment, reste attentif à ta régularité.";
+    else base = "Ton sommeil est fragile en ce moment.";
+    if (sleepDebt >= 8) base += " Ta dette de sommeil est élevée, essaie de te coucher plus tôt cette semaine.";
+    else if (sleepDebt >= 4) base += " Une petite dette de sommeil s'accumule, une nuit plus longue serait utile.";
+    if (trend === "hausse") base += " Bonne nouvelle : la tendance est à l'amélioration.";
+    if (trend === "baisse") base += " Attention, la tendance est plutôt à la baisse récemment.";
+    return base;
+  }, [avgScore7, sleepDebt, trend]);
+
+  const latest = sorted[0];
+  const latestTier = latest ? tier(latest.score) : "moyen";
+  const ts = TIER_STYLES[latestTier];
+
+  if (loading) return <div style={{...S.app, alignItems:"center", justifyContent:"center", display:"flex"}}><div style={{color:S.colors.textMuted, fontFamily:"Inter, sans-serif"}}>Chargement…</div></div>;
+
+  return (
+    <div style={S.app}>
+      <div style={S.container}>
+        <header style={S.header}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{fontSize:16}}>🌙</span>
+            <span style={S.eyebrow}>Suivi du sommeil</span>
+          </div>
+          <button onClick={() => setShowSettings((v) => !v)} style={S.settingsBtn}>{wakeTarget}</button>
+        </header>
+
+        {showSettings && (
+          <div style={S.card}>
+            <div style={S.cardLabel}>Heure de réveil habituelle</div>
+            <input type="time" value={wakeTarget} onChange={(e) => persistSettings({ wakeTarget: e.target.value })} style={S.timeInput} />
+            <div style={S.hint}>Utilisée pour calculer ton heure de coucher recommandée.</div>
+          </div>
+        )}
+
+        <div style={{ ...S.card, ...S.gaugeCard }}>
+          <div style={{ position: "relative", width: 176, height: 176, margin: "4px auto 10px" }}>
+            <div style={{ position: "absolute", inset: -18, borderRadius: "50%", background: `radial-gradient(circle, rgba(${ts.glow},0.35) 0%, rgba(${ts.glow},0) 70%)`, filter: "blur(2px)" }} />
+            <svg width="176" height="176" viewBox="0 0 176 176" style={{ position: "relative" }}>
+              <defs>
+                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor={ts.grad[0]} />
+                  <stop offset="100%" stopColor={ts.grad[1]} />
+                </linearGradient>
+              </defs>
+              <circle cx="88" cy="88" r="76" fill="none" stroke={S.colors.surface2} strokeWidth="12" />
+              <circle cx="88" cy="88" r="76" fill="none" stroke="url(#ringGrad)" strokeWidth="12" strokeLinecap="round"
+                strokeDasharray={2 * Math.PI * 76}
+                strokeDashoffset={latest ? 2 * Math.PI * 76 * (1 - latest.score / 100) : 2 * Math.PI * 76}
+                transform="rotate(-90 88 88)" style={{ transition: "stroke-dashoffset 0.6s ease" }} />
+            </svg>
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ fontFamily: "Fraunces, serif", fontSize: 48, fontWeight: 500, color: S.colors.text, lineHeight: 1 }}>{latest ? latest.score : "—"}</div>
+              <div style={{ fontFamily: "Inter, sans-serif", fontSize: 11, letterSpacing: 1.5, color: S.colors.textMuted, marginTop: 4, textTransform: "uppercase" }}>{latest ? ts.label : "Aucune donnée"}</div>
+            </div>
+          </div>
+          {latest && (
+            <div style={{ display: "flex", justifyContent: "center", gap: 18, marginTop: 6 }}>
+              <Chip label="Durée" value={`${latest.duration}h`} />
+              <Chip label="Ressenti" value={`${latest.quality}/10`} />
+              <Chip label="Nuit du" value={formatDateFR(latest.date)} />
+            </div>
+          )}
+        </div>
+
+        <div style={{ ...S.card, borderLeft: `3px solid rgb(${ts.glow})`, display: "flex", gap: 10 }}>
+          <span style={{fontSize:15}}>✨</span>
+          <div style={{ fontFamily: "Inter, sans-serif", fontSize: 13.5, color: S.colors.text, lineHeight: 1.5 }}>{insight}</div>
+        </div>
+
+        <div style={S.card}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+            <div style={S.cardLabel}>Dette de sommeil (14j)</div>
+            <div style={{ fontFamily: "Fraunces, serif", fontSize: 22, color: sleepDebt >= 8 ? "#E08585" : S.colors.text }}>{sleepDebt}h</div>
+          </div>
+          <div style={S.divider} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={S.cardLabel}>Coucher recommandé ce soir</div>
+              <div style={{ fontFamily: "Fraunces, serif", fontSize: 26, color: S.colors.text, marginTop: 2 }}>{recommendedBedtime.time}</div>
+            </div>
+            <div style={{ textAlign: "right", fontFamily: "Inter, sans-serif", fontSize: 11.5, color: S.colors.textMuted, maxWidth: 140 }}>
+              pour {recommendedBedtime.hours}h de sommeil avant ton réveil à {wakeTarget}
+            </div>
+          </div>
+        </div>
+
+        <div style={S.card}>
+          <div style={S.cardLabel}>Nuit dernière</div>
+          <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+            <div style={{ flex: 1 }}>
+              <label style={S.smallLabel}>Coucher</label>
+              <input type="time" value={form.bedTime} onChange={(e) => setForm({ ...form, bedTime: e.target.value })} style={S.timeInput} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={S.smallLabel}>Réveil</label>
+              <input type="time" value={form.wakeTime} onChange={(e) => setForm({ ...form, wakeTime: e.target.value })} style={S.timeInput} />
+            </div>
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <label style={S.smallLabel}>Qualité ressentie</label>
+              <span style={{ fontFamily: "Inter, sans-serif", fontSize: 12.5, color: S.colors.text, fontWeight: 600 }}>{form.quality}/10</span>
+            </div>
+            <input type="range" min={1} max={10} value={form.quality} onChange={(e) => setForm({ ...form, quality: Number(e.target.value) })} style={S.slider} />
+          </div>
+          {error && <div style={{ color: "#E08585", fontFamily: "Inter, sans-serif", fontSize: 12.5, marginTop: 10 }}>{error}</div>}
+          <button onClick={saveEntry} disabled={saving} style={S.saveBtn}>{saving ? "Enregistrement…" : "Enregistrer cette nuit"}</button>
+        </div>
+
+        {sorted.length > 0 && (
+          <div style={S.card}>
+            <div style={S.cardLabel}>Historique</div>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 5, height: 64, marginTop: 12 }}>
+              {[...last14].reverse().map((e) => {
+                const t = tier(e.score), grad = TIER_STYLES[t].grad;
+                return <div key={e.id} title={`${formatDateFR(e.date)} — ${e.score}`} style={{ flex: 1, height: `${Math.max(6, (e.score / 100) * 64)}px`, background: `linear-gradient(180deg, ${grad[0]}, ${grad[1]})`, borderRadius: 3, opacity: 0.9 }} />;
+              })}
+            </div>
+            <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+              {sorted.slice(0, 8).map((e) => (
+                <div key={e.id} style={S.historyRow}>
+                  <div style={{ width: 64, fontFamily: "Inter, sans-serif", fontSize: 12, color: S.colors.textMuted }}>{formatDateFR(e.date)}</div>
+                  <div style={{ flex: 1, fontFamily: "Inter, sans-serif", fontSize: 12.5, color: S.colors.text }}>{e.duration}h · qualité {e.quality}/10</div>
+                  <div style={{ fontFamily: "Fraunces, serif", fontSize: 15, color: S.colors.text, marginRight: 8 }}>{e.score}</div>
+                  <button onClick={() => deleteEntry(e.id)} style={S.deleteBtn}><TrashIcon color={S.colors.textFaint} /></button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {last7.length > 0 && (
+          <div style={{ display: "flex", gap: 10 }}>
+            <StatCard label="Score moyen (7j)" value={avgScore7} />
+            <StatCard label="Durée moyenne (7j)" value={`${avgDuration7}h`} />
+            <StatCard label="Tendance" value={<TrendIcon trend={trend} />} />
+          </div>
+        )}
+
+        <div style={S.footer}>7-9h de sommeil et régularité du coucher sont les repères recommandés pour un adulte.</div>
+      </div>
+    </div>
+  );
+}
+
+function Chip({ label, value }) {
+  return (
+    <div style={{ textAlign: "center" }}>
+      <div style={{ fontFamily: "Inter, sans-serif", fontSize: 13, color: "#E7E9F2", fontWeight: 600 }}>{value}</div>
+      <div style={{ fontFamily: "Inter, sans-serif", fontSize: 10, color: "#8890A6", textTransform: "uppercase", letterSpacing: 0.8, marginTop: 2 }}>{label}</div>
+    </div>
+  );
+}
+function StatCard({ label, value }) {
+  return (
+    <div style={{ ...S.card, flex: 1, padding: "14px 12px", textAlign: "center" }}>
+      <div style={{ fontFamily: "Fraunces, serif", fontSize: 22, color: "#E7E9F2", minHeight: 26, display: "flex", alignItems: "center", justifyContent: "center" }}>{value}</div>
+      <div style={{ fontFamily: "Inter, sans-serif", fontSize: 10.5, color: "#8890A6", marginTop: 4 }}>{label}</div>
+    </div>
+  );
+}
+
+const colors = { bg: "#0A0D14", surface: "#12151F", surface2: "#1A1E2B", border: "#242938", text: "#E7E9F2", textMuted: "#8890A6", textFaint: "#545B70" };
+const S = {
+  colors,
+  app: { minHeight: "100vh", background: `radial-gradient(circle at 50% -10%, #161B2A 0%, ${colors.bg} 55%)`, padding: "20px 0 40px", boxSizing: "border-box" },
+  container: { maxWidth: 430, margin: "0 auto", padding: "16px 16px 0", display: "flex", flexDirection: "column", gap: 12 },
+  header: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 2px 6px" },
+  eyebrow: { fontFamily: "Inter, sans-serif", fontSize: 11.5, letterSpacing: 1.5, textTransform: "uppercase", color: colors.textMuted },
+  settingsBtn: { background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.textMuted, fontFamily: "Inter, sans-serif", fontSize: 12, borderRadius: 20, padding: "6px 12px", cursor: "pointer" },
+  card: { background: colors.surface, border: `1px solid ${colors.border}`, borderRadius: 18, padding: "16px 16px" },
+  gaugeCard: { display: "flex", flexDirection: "column", alignItems: "center" },
+  cardLabel: { fontFamily: "Inter, sans-serif", fontSize: 11.5, letterSpacing: 1, textTransform: "uppercase", color: colors.textMuted },
+  smallLabel: { fontFamily: "Inter, sans-serif", fontSize: 11.5, color: colors.textMuted, display: "block", marginBottom: 5 },
+  divider: { height: 1, background: colors.border, margin: "12px 0" },
+  timeInput: { width: "100%", background: colors.surface2, border: `1px solid ${colors.border}`, color: colors.text, fontFamily: "Inter, sans-serif", fontSize: 15, borderRadius: 10, padding: "9px 10px", boxSizing: "border-box", colorScheme: "dark" },
+  slider: { width: "100%", marginTop: 8, accentColor: "#8C9EFF" },
+  saveBtn: { width: "100%", marginTop: 16, background: "linear-gradient(135deg, #6E7BD6, #8C9EFF)", border: "none", color: "#0A0D14", fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: 14, borderRadius: 12, padding: "12px", cursor: "pointer" },
+  historyRow: { display: "flex", alignItems: "center", gap: 8, borderBottom: `1px solid ${colors.border}`, paddingBottom: 8 },
+  deleteBtn: { background: "none", border: "none", cursor: "pointer", padding: 4 },
+  footer: { fontFamily: "Inter, sans-serif", fontSize: 11, color: colors.textFaint, textAlign: "center", padding: "8px 20px 4px", lineHeight: 1.5 },
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<SleepScoreApp />);
+</script>
+</body>
+</html>
