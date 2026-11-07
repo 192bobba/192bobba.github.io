@@ -17,7 +17,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 // Volontairement, ce fichier n'importe aucun module du site : ainsi, le serveur
 // démarré juste après charge bien les versions fraîchement mises à jour.
 const ROOT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// .version : version installée par la dernière mise à jour (« sha date »).
+// version.txt : version du ZIP téléchargé (rempli automatiquement par GitHub).
 const VERSION_FILE = path.join(ROOT_DIR, '.version');
+const ARCHIVE_VERSION_FILE = path.join(ROOT_DIR, 'version.txt');
 const PROTECTED = [/^data\/products\.json$/, /^data\/orders\.json$/, /^public\/uploads\//];
 
 function download(url, redirectsLeft = 5) {
@@ -73,6 +76,7 @@ function* readTar(buffer) {
     };
     const size = parseInt(field(124, 12).trim() || '0', 8);
     const mode = parseInt(field(100, 8).trim() || '0', 8);
+    const mtime = parseInt(field(136, 12).trim() || '0', 8);
     const type = field(156, 1) || '0';
     const prefix = field(345, 155);
     let name = prefix ? `${prefix}/${field(0, 100)}` : field(0, 100);
@@ -84,8 +88,19 @@ function* readTar(buffer) {
     if (type === 'x') { longName = parsePax(data).path ?? longName; continue; }
     if (type === 'L') { longName = data.toString('utf8').replace(/\0+$/, ''); continue; }
     if (longName) { name = longName; longName = null; }
-    yield { type, name, mode, data };
+    yield { type, name, mode, mtime, data };
   }
+}
+
+// Version installée localement : { sha, time } (time = date du commit, en secondes).
+function readLocalVersion() {
+  for (const file of [VERSION_FILE, ARCHIVE_VERSION_FILE]) {
+    try {
+      const [sha, time] = fs.readFileSync(file, 'utf8').trim().split(/\s+/);
+      if (/^[0-9a-f]{40}$/.test(sha) && /^\d+$/.test(time)) return { sha, time: Number(time) };
+    } catch { /* fichier absent */ }
+  }
+  return null;
 }
 
 function readSource() {
@@ -113,15 +128,29 @@ export async function checkForUpdates() {
     return;
   }
 
+  const entries = [...readTar(archive)];
+  const remote = {
+    sha: entries.find((e) => e.type === 'g')?.records.comment || null,
+    time: entries.find((e) => e.type === '0')?.mtime || 0,
+  };
+  const local = readLocalVersion();
+  const label = remote.sha ? ` (version ${remote.sha.slice(0, 7)})` : '';
+
+  if (local && remote.sha === local.sha) {
+    console.log(`✅ Le site est déjà à jour${label}.`);
+    return;
+  }
+  // Juste après une publication, GitHub peut encore servir une archive plus ancienne
+  // pendant une minute : on ne revient jamais à une version antérieure.
+  if (local && remote.time < local.time) {
+    console.log('✅ Le site est à jour (GitHub prépare encore la toute dernière version : relancez dans une minute si besoin).');
+    return;
+  }
+
   const updated = [];
-  let version = null;
   let folderFound = false;
 
-  for (const entry of readTar(archive)) {
-    if (entry.type === 'g') {
-      version = entry.records.comment || null;
-      continue;
-    }
+  for (const entry of entries) {
     if (entry.type !== '0') continue;
 
     // Chemin dans l'archive : « <dossier-racine>/<dossier du site>/chemin/fichier »
@@ -150,8 +179,7 @@ export async function checkForUpdates() {
     return;
   }
 
-  if (version) fs.writeFileSync(VERSION_FILE, `${version}\n`);
-  const label = version ? ` (version ${version.slice(0, 7)})` : '';
+  if (remote.sha) fs.writeFileSync(VERSION_FILE, `${remote.sha} ${remote.time}\n`);
   if (updated.length) {
     console.log(`✅ Mise à jour installée${label} : ${updated.length} fichier(s) modifié(s).`);
   } else {

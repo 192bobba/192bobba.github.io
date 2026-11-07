@@ -1,2 +1,5 @@
 *.bat text eol=crlf
 *.command text eol=lf
+
+# GitHub écrit automatiquement la version (commit + date) dans ce fichier lors du téléchargement.
+version.txt export-subst
