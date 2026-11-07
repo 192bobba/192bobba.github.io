@@ -1,107 +1,796 @@
 {
-"updated": 1794090083,
+"updated": 1794091098,
 "tickers": [
 {
 "ticker": "AMD",
 "file": "AMD.json",
 "name": "Advanced Micro Devices, Inc.",
-"currency": "USD"
+"currency": "USD",
+"type": "EQUITY"
 },
 {
 "ticker": "AAPL",
 "file": "AAPL.json",
 "name": "Apple Inc.",
-"currency": "USD"
+"currency": "USD",
+"type": "EQUITY"
 },
 {
 "ticker": "MSFT",
 "file": "MSFT.json",
 "name": "Microsoft Corporation",
-"currency": "USD"
+"currency": "USD",
+"type": "EQUITY"
 },
 {
 "ticker": "NVDA",
 "file": "NVDA.json",
 "name": "NVIDIA Corporation",
-"currency": "USD"
+"currency": "USD",
+"type": "EQUITY"
 },
 {
 "ticker": "GOOGL",
 "file": "GOOGL.json",
 "name": "Alphabet Inc.",
-"currency": "USD"
+"currency": "USD",
+"type": "EQUITY"
 },
 {
 "ticker": "AMZN",
 "file": "AMZN.json",
 "name": "Amazon.com, Inc.",
-"currency": "USD"
+"currency": "USD",
+"type": "EQUITY"
 },
 {
 "ticker": "META",
 "file": "META.json",
 "name": "Meta Platforms, Inc.",
-"currency": "USD"
+"currency": "USD",
+"type": "EQUITY"
 },
 {
 "ticker": "TSLA",
 "file": "TSLA.json",
 "name": "Tesla, Inc.",
-"currency": "USD"
+"currency": "USD",
+"type": "EQUITY"
 },
 {
 "ticker": "NESN.SW",
 "file": "NESN.SW.json",
 "name": "Nestlé S.A.",
-"currency": "CHF"
+"currency": "CHF",
+"type": "EQUITY"
 },
 {
 "ticker": "UBSG.SW",
 "file": "UBSG.SW.json",
 "name": "UBS Group AG",
-"currency": "CHF"
+"currency": "CHF",
+"type": "EQUITY"
 },
 {
 "ticker": "NOVN.SW",
 "file": "NOVN.SW.json",
 "name": "Novartis AG",
-"currency": "CHF"
+"currency": "CHF",
+"type": "EQUITY"
 },
 {
 "ticker": "ZURN.SW",
 "file": "ZURN.SW.json",
 "name": "Zurich Insurance Group AG",
-"currency": "CHF"
+"currency": "CHF",
+"type": "EQUITY"
 },
 {
 "ticker": "ABBN.SW",
 "file": "ABBN.SW.json",
 "name": "ABB Ltd",
-"currency": "CHF"
+"currency": "CHF",
+"type": "EQUITY"
 },
 {
 "ticker": "^GSPC",
 "file": "INDEX_GSPC.json",
 "name": "S&P 500",
-"currency": "USD"
+"currency": "USD",
+"type": "INDEX"
 },
 {
 "ticker": "^SSMI",
 "file": "INDEX_SSMI.json",
 "name": "SMI PR",
-"currency": "CHF"
+"currency": "CHF",
+"type": "INDEX"
 },
 {
 "ticker": "RO.SW",
 "file": "RO.SW.json",
 "name": "Roche Holding AG",
-"currency": "CHF"
+"currency": "CHF",
+"type": "EQUITY"
 },
 {
 "ticker": "MC.PA",
 "file": "MC.PA.json",
 "name": "LVMH Moët Hennessy - Louis Vuitton, Société Européenne",
-"currency": "EUR"
+"currency": "EUR",
+"type": "EQUITY"
+},
+{
+"ticker": "AVGO",
+"file": "AVGO.json",
+"name": "Broadcom Inc.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "NFLX",
+"file": "NFLX.json",
+"name": "Netflix, Inc.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "INTC",
+"file": "INTC.json",
+"name": "Intel Corporation",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "ORCL",
+"file": "ORCL.json",
+"name": "Oracle Corporation",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "CRM",
+"file": "CRM.json",
+"name": "Salesforce, Inc.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "ADBE",
+"file": "ADBE.json",
+"name": "Adobe Inc.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "ASML",
+"file": "ASML.json",
+"name": "ASML Holding N.V.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "JPM",
+"file": "JPM.json",
+"name": "JPMorgan Chase & Co.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "V",
+"file": "V.json",
+"name": "Visa Inc.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "MA",
+"file": "MA.json",
+"name": "Mastercard Incorporated",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "BRK-B",
+"file": "BRK-B.json",
+"name": "Berkshire Hathaway Inc.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "KO",
+"file": "KO.json",
+"name": "The Coca-Cola Company",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "PEP",
+"file": "PEP.json",
+"name": "PepsiCo, Inc.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "JNJ",
+"file": "JNJ.json",
+"name": "Johnson & Johnson",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "PG",
+"file": "PG.json",
+"name": "The Procter & Gamble Company",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "XOM",
+"file": "XOM.json",
+"name": "ExxonMobil Holdings Corporation",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "WMT",
+"file": "WMT.json",
+"name": "Walmart Inc.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "DIS",
+"file": "DIS.json",
+"name": "The Walt Disney Company",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "MCD",
+"file": "MCD.json",
+"name": "McDonald's Corporation",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "NKE",
+"file": "NKE.json",
+"name": "NIKE, Inc.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "PFE",
+"file": "PFE.json",
+"name": "Pfizer Inc.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "LLY",
+"file": "LLY.json",
+"name": "Eli Lilly and Company",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "UNH",
+"file": "UNH.json",
+"name": "UnitedHealth Group Incorporated",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "COST",
+"file": "COST.json",
+"name": "Costco Wholesale Corporation",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "PLTR",
+"file": "PLTR.json",
+"name": "Palantir Technologies Inc.",
+"currency": "USD",
+"type": "EQUITY"
+},
+{
+"ticker": "SPY",
+"file": "SPY.json",
+"name": "State Street SPDR S&P 500 ETF Trust",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "VOO",
+"file": "VOO.json",
+"name": "Vanguard S&P 500 ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "VTI",
+"file": "VTI.json",
+"name": "Vanguard Morningstar Total Stock Market ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "QQQ",
+"file": "QQQ.json",
+"name": "Invesco QQQ Trust",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "IWM",
+"file": "IWM.json",
+"name": "iShares Russell 2000 ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "DIA",
+"file": "DIA.json",
+"name": "State Street SPDR Dow Jones Industrial Average ETF Trust",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "VT",
+"file": "VT.json",
+"name": "Vanguard Total World Stock Index Fund ETF Shares",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "VXUS",
+"file": "VXUS.json",
+"name": "Vanguard Total International Stock Index Fund ETF Shares",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "VEA",
+"file": "VEA.json",
+"name": "Vanguard FTSE Developed Markets Index Fund ETF Shares",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "VWO",
+"file": "VWO.json",
+"name": "Vanguard FTSE Emerging Markets Index Fund ETF Shares",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "EEM",
+"file": "EEM.json",
+"name": "iShares MSCI Emerging Markets ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "SCHD",
+"file": "SCHD.json",
+"name": "Schwab U.S. Dividend Equity ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "VIG",
+"file": "VIG.json",
+"name": "Vanguard Dividend Appreciation Index Fund ETF Shares",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "VNQ",
+"file": "VNQ.json",
+"name": "Vanguard Real Estate Index Fund ETF Shares",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "XLK",
+"file": "XLK.json",
+"name": "State Street Technology Select Sector SPDR ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "XLF",
+"file": "XLF.json",
+"name": "State Street Financial Select Sector SPDR ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "XLE",
+"file": "XLE.json",
+"name": "State Street Energy Select Sector SPDR ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "SMH",
+"file": "SMH.json",
+"name": "VanEck Semiconductor ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "ARKK",
+"file": "ARKK.json",
+"name": "ARK Innovation ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "AGG",
+"file": "AGG.json",
+"name": "iShares Core U.S. Aggregate Bond ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "BND",
+"file": "BND.json",
+"name": "Vanguard Total Bond Market Index Fund ETF Shares",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "TLT",
+"file": "TLT.json",
+"name": "iShares 20+ Year Treasury Bond ETF",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "GLD",
+"file": "GLD.json",
+"name": "SPDR Gold Shares",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "SLV",
+"file": "SLV.json",
+"name": "iShares Silver Trust",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "CSPX.L",
+"file": "CSPX.L.json",
+"name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "VWRL.L",
+"file": "VWRL.L.json",
+"name": "Vanguard FTSE All-World UCITS ETF",
+"currency": "GBP",
+"type": "ETF"
+},
+{
+"ticker": "VUSA.L",
+"file": "VUSA.L.json",
+"name": "Vanguard S&P 500 UCITS ETF",
+"currency": "GBP",
+"type": "ETF"
+},
+{
+"ticker": "EQQQ.L",
+"file": "EQQQ.L.json",
+"name": "Invesco EQQQ NASDAQ-100 UCITS ETF",
+"currency": "GBp",
+"type": "ETF"
+},
+{
+"ticker": "IWDA.AS",
+"file": "IWDA.AS.json",
+"name": "iShares Core MSCI World UCITS ETF USD (Acc)",
+"currency": "EUR",
+"type": "ETF"
+},
+{
+"ticker": "VWCE.DE",
+"file": "VWCE.DE.json",
+"name": "Vanguard FTSE All-World UCITS ETF USD Accumulation",
+"currency": "EUR",
+"type": "ETF"
+},
+{
+"ticker": "EUNL.DE",
+"file": "EUNL.DE.json",
+"name": "iShares Core MSCI World UCITS ETF USD (Acc)",
+"currency": "EUR",
+"type": "ETF"
+},
+{
+"ticker": "SXR8.DE",
+"file": "SXR8.DE.json",
+"name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+"currency": "EUR",
+"type": "ETF"
+},
+{
+"ticker": "IS3N.DE",
+"file": "IS3N.DE.json",
+"name": "iShares Core MSCI EM IMI UCITS ETF USD (Acc)",
+"currency": "EUR",
+"type": "ETF"
+},
+{
+"ticker": "CHSPI.SW",
+"file": "CHSPI.SW.json",
+"name": "iShares Core SPI ETF (CH)",
+"currency": "CHF",
+"type": "ETF"
+},
+{
+"ticker": "CSSMI.SW",
+"file": "CSSMI.SW.json",
+"name": "iShares SMI ETF (CH)",
+"currency": "CHF",
+"type": "ETF"
+},
+{
+"ticker": "CSNDX.SW",
+"file": "CSNDX.SW.json",
+"name": "iShares NASDAQ 100 UCITS ETF USD (Acc)",
+"currency": "USD",
+"type": "ETF"
+},
+{
+"ticker": "CFR.SW",
+"file": "CFR.SW.json",
+"name": "Compagnie Financière Richemont SA",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "LOGN.SW",
+"file": "LOGN.SW.json",
+"name": "Logitech International S.A.",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "SIKA.SW",
+"file": "SIKA.SW.json",
+"name": "Sika AG",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "GIVN.SW",
+"file": "GIVN.SW.json",
+"name": "Givaudan SA",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "LONN.SW",
+"file": "LONN.SW.json",
+"name": "Lonza Group AG",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "ALC.SW",
+"file": "ALC.SW.json",
+"name": "Alcon Inc.",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "HOLN.SW",
+"file": "HOLN.SW.json",
+"name": "Holcim AG",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "SREN.SW",
+"file": "SREN.SW.json",
+"name": "Swiss Re AG",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "SCMN.SW",
+"file": "SCMN.SW.json",
+"name": "Swisscom AG",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "PGHN.SW",
+"file": "PGHN.SW.json",
+"name": "Partners Group Holding AG",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "SLHN.SW",
+"file": "SLHN.SW.json",
+"name": "Swiss Life Holding AG",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "GEBN.SW",
+"file": "GEBN.SW.json",
+"name": "Geberit AG",
+"currency": "CHF",
+"type": "EQUITY"
+},
+{
+"ticker": "OR.PA",
+"file": "OR.PA.json",
+"name": "L'Oréal S.A.",
+"currency": "EUR",
+"type": "EQUITY"
+},
+{
+"ticker": "TTE.PA",
+"file": "TTE.PA.json",
+"name": "TotalEnergies SE",
+"currency": "EUR",
+"type": "EQUITY"
+},
+{
+"ticker": "AIR.PA",
+"file": "AIR.PA.json",
+"name": "Airbus SE",
+"currency": "EUR",
+"type": "EQUITY"
+},
+{
+"ticker": "SAN.PA",
+"file": "SAN.PA.json",
+"name": "Sanofi",
+"currency": "EUR",
+"type": "EQUITY"
+},
+{
+"ticker": "BNP.PA",
+"file": "BNP.PA.json",
+"name": "BNP Paribas SA",
+"currency": "EUR",
+"type": "EQUITY"
+},
+{
+"ticker": "RMS.PA",
+"file": "RMS.PA.json",
+"name": "Hermès International Société en commandite par actions",
+"currency": "EUR",
+"type": "EQUITY"
+},
+{
+"ticker": "SAP.DE",
+"file": "SAP.DE.json",
+"name": "SAP SE",
+"currency": "EUR",
+"type": "EQUITY"
+},
+{
+"ticker": "SIE.DE",
+"file": "SIE.DE.json",
+"name": "Siemens Aktiengesellschaft",
+"currency": "EUR",
+"type": "EQUITY"
+},
+{
+"ticker": "ALV.DE",
+"file": "ALV.DE.json",
+"name": "Allianz SE",
+"currency": "EUR",
+"type": "EQUITY"
+},
+{
+"ticker": "^NDX",
+"file": "INDEX_NDX.json",
+"name": "NASDAQ-100",
+"currency": "USD",
+"type": "INDEX"
+},
+{
+"ticker": "^DJI",
+"file": "INDEX_DJI.json",
+"name": "Dow Jones Industrial Average",
+"currency": "USD",
+"type": "INDEX"
+},
+{
+"ticker": "^RUT",
+"file": "INDEX_RUT.json",
+"name": " Russell 2000 Index",
+"currency": "USD",
+"type": "INDEX"
+},
+{
+"ticker": "^FCHI",
+"file": "INDEX_FCHI.json",
+"name": "CAC 40",
+"currency": "EUR",
+"type": "INDEX"
+},
+{
+"ticker": "^GDAXI",
+"file": "INDEX_GDAXI.json",
+"name": "DAX P",
+"currency": "EUR",
+"type": "INDEX"
+},
+{
+"ticker": "^STOXX50E",
+"file": "INDEX_STOXX50E.json",
+"name": "EURO STOXX 50 I",
+"currency": "",
+"type": "INDEX"
+},
+{
+"ticker": "^N225",
+"file": "INDEX_N225.json",
+"name": "Nikkei 225",
+"currency": "JPY",
+"type": "INDEX"
+},
+{
+"ticker": "^VIX",
+"file": "INDEX_VIX.json",
+"name": "CBOE Volatility Index",
+"currency": "USD",
+"type": "INDEX"
+},
+{
+"ticker": "BTC-USD",
+"file": "BTC-USD.json",
+"name": "Bitcoin USD",
+"currency": "USD",
+"type": "CRYPTOCURRENCY"
+},
+{
+"ticker": "ETH-USD",
+"file": "ETH-USD.json",
+"name": "Ethereum USD",
+"currency": "USD",
+"type": "CRYPTOCURRENCY"
+},
+{
+"ticker": "GC=F",
+"file": "GC_EQ_F.json",
+"name": "Gold Dec 26",
+"currency": "USD",
+"type": "FUTURE"
+},
+{
+"ticker": "CL=F",
+"file": "CL_EQ_F.json",
+"name": "Crude Oil Dec 26",
+"currency": "USD",
+"type": "FUTURE"
+},
+{
+"ticker": "EURCHF=X",
+"file": "EURCHF_EQ_X.json",
+"name": "EUR/CHF",
+"currency": "CHF",
+"type": "CURRENCY"
+},
+{
+"ticker": "USDCHF=X",
+"file": "USDCHF_EQ_X.json",
+"name": "USD/CHF",
+"currency": "CHF",
+"type": "CURRENCY"
 }
 ],
 "unknown": []

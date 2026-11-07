@@ -55,11 +55,11 @@
   .form label { font-size: 14px; }
   .hint { color: var(--muted); font-size: 13px; }
   .span3 { grid-column: 1 / -1; }
-  input[type=text], select {
+  input[type=text], input[type=password], select {
     font: inherit; width: 100%; min-height: 40px; padding: 6px 8px; border: 1px solid #a6a6a6;
     border-radius: 2px; background: #fff; color: var(--text);
   }
-  input[type=text]:focus, select:focus { outline: 2px solid #7eb4ea; outline-offset: 0; border-color: #3c7fb1; }
+  input[type=text]:focus, input[type=password]:focus, select:focus { outline: 2px solid #7eb4ea; outline-offset: 0; border-color: #3c7fb1; }
   input.bad { border-color: var(--warn); background: #fff4f4; }
   .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   button, .filebtn {
@@ -77,11 +77,23 @@
   .warning { color: var(--warn); font-weight: 600; font-size: 14px; margin: 10px 0 0; }
   .note { color: var(--muted); font-size: 12.5px; margin: 0 2px 10px; }
   .note a { color: #1c4f87; }
+  button.small { min-height: 36px; font-size: 13.5px; color: var(--muted); }
+  button.small.ok { color: #1d6b2a; }
+  .gh p { margin: 0 0 10px; }
+  .gh ol { margin: 0 0 12px; padding-left: 22px; }
+  .gh li { margin-bottom: 6px; }
+  .gh .row { display: flex; gap: 8px; align-items: center; margin: 10px 0; }
+  .gh .row input { flex: 1; }
+  .gh #ghMsg { font-weight: 600; }
+  .gh #ghMsg.bad { color: var(--warn); }
+  .gh #ghMsg.good { color: #1d6b2a; }
+  .box.wide { max-width: 640px; }
+  .box .msg.gh { display: block; white-space: normal; max-height: 70vh; }
   .box .act { gap: 8px; }
-  .box .act a.btnlink {
+  a.btnlink {
     font: inherit; min-height: 44px; padding: 6px 12px; border: 1px solid #707070; border-radius: 3px;
     background: linear-gradient(#f6f6f6, #dcdcdc); color: var(--text); text-decoration: none;
-    display: flex; align-items: center;
+    display: inline-flex; align-items: center;
   }
   .results { display: flex; flex-direction: column; min-width: 0; }
   .tabs { display: flex; gap: 2px; padding-left: 4px; }
@@ -153,6 +165,7 @@
           <button id="load">Charger les données</button>
           <label class="filebtn" id="csvbtn">Ouvrir un CSV...<input type="file" id="csv" accept=".csv,.txt,text/csv,text/plain"></label>
         </div>
+        <button id="ghbtn" class="span3 small">Accès GitHub : à configurer</button>
       </div>
     </fieldset>
 
@@ -194,9 +207,9 @@
       <p class="warning" id="warning" hidden></p>
     </fieldset>
     <p class="note">Les cours viennent d'une copie de Yahoo Finance mise à jour chaque soir de semaine
-      sur ce site <span id="dataDate"></span>. Tickers disponibles : <span id="tickerNames">AMD, AAPL, NESN.SW, UBSG.SW…</span>
-      Pour en ajouter un : <a id="addLink" href="#" target="_blank" rel="noopener">page GitHub « Cours Yahoo »</a>,
-      bouton « Run workflow ». Les calculs se font sur cet appareil.</p>
+      <span id="dataDate"></span>. <span id="tickerCount">Plus de 100</span> titres sont prêts (actions, ETF, indices,
+      cryptos : tapez dans le champ pour voir la liste). Tout autre ticker Yahoo est copié automatiquement en 30 à 60 s
+      la première fois, une fois l'<a href="#" id="ghLink">accès GitHub</a> configuré. Les calculs se font sur cet appareil.</p>
   </aside>
 
   <section class="results">
@@ -220,7 +233,32 @@
   <div class="box" role="alertdialog" aria-modal="true" aria-labelledby="modalCap" aria-describedby="modalMsg">
     <div class="cap" id="modalCap">Simulation Monte Carlo – Erreur</div>
     <div class="msg"><span class="icon" aria-hidden="true">✕</span><span id="modalMsg"></span></div>
-    <div class="act"><a class="btnlink" id="modalLink" href="#" target="_blank" rel="noopener" hidden></a><button id="modalOk">OK</button></div>
+    <div class="act"><a class="btnlink" id="modalLink" href="#" target="_blank" rel="noopener" hidden></a><button id="modalAct" hidden></button><button id="modalOk">OK</button></div>
+  </div>
+</div>
+
+<div class="modal" id="ghDialog" hidden>
+  <div class="box wide" role="dialog" aria-modal="true" aria-labelledby="ghCap">
+    <div class="cap" id="ghCap">Accès GitHub – charger n'importe quel ticker</div>
+    <div class="msg gh">
+      <p>Pour un ticker qui n'est pas encore copié (action, ETF, indice, crypto, devise…), l'application demande à
+        votre dépôt GitHub de le copier depuis Yahoo Finance : 30 à 60 secondes la première fois, puis c'est instantané.
+        Il faut pour cela un <b>jeton d'accès GitHub</b>, à créer une seule fois :</p>
+      <ol>
+        <li>Touchez « Créer le jeton sur GitHub » ci-dessous (connectez-vous si besoin).</li>
+        <li><b>Token name</b> : Monte Carlo iPad. <b>Expiration</b> : la durée la plus longue proposée.</li>
+        <li><b>Repository access</b> : « Only select repositories », puis choisissez <b>192bobba/192bobba.github.io</b>.</li>
+        <li><b>Permissions</b> : ajoutez <b>Actions</b> avec « Read and write » et <b>Contents</b> avec « Read-only ».</li>
+        <li>Touchez « Generate token », copiez le jeton (il commence par <code>github_pat_</code>), revenez ici et collez-le.</li>
+      </ol>
+      <p><a class="btnlink" id="ghCreate" target="_blank" rel="noopener"
+        href="https://github.com/settings/personal-access-tokens/new?name=Monte+Carlo+iPad&amp;description=Copie+des+cours+Yahoo+pour+l%27application+Monte+Carlo&amp;target_name=192bobba&amp;expires_in=366&amp;actions=write&amp;contents=read">Créer le jeton sur GitHub</a></p>
+      <div class="row"><label for="ghToken">Jeton :</label>
+        <input type="password" id="ghToken" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="github_pat_..."></div>
+      <p class="hint">Le jeton reste sur cet appareil et sert uniquement à demander les copies de cours à votre dépôt.</p>
+      <p id="ghMsg"></p>
+    </div>
+    <div class="act"><button id="ghDelete">Supprimer</button><button id="ghClose">Fermer</button><button id="ghSave" class="primary">Enregistrer</button></div>
   </div>
 </div>
 
@@ -237,8 +275,8 @@
   var REPO = '192bobba/192bobba.github.io';
   var ADD_URL = 'https://github.com/' + REPO + '/actions/workflows/cours-yahoo.yml';
   var RAW = 'https://raw.githubusercontent.com/' + REPO + '/main/montecarlo-web/data/';
+  var GH_API = 'https://api.github.com/repos/' + REPO;
   var dataIndex = null;
-  $('addLink').href = ADD_URL;
 
   function fileName(t) {
     return t.replace(/\^/g, 'INDEX_').replace(/=/g, '_EQ_').replace(/[^A-Za-z0-9.\-]/g, '_') + '.json';
@@ -260,16 +298,21 @@
         names.push(t.ticker);
       });
       $('tickerList').innerHTML = list;
-      $('tickerNames').textContent = names.join(', ') + '.';
+      $('tickerCount').textContent = String(names.length);
       $('dataDate').textContent = '(dernière mise à jour le ' + frDate(idx.updated) + ')';
       return idx;
     }).catch(function () { return null; });
   }
 
-  function showError(msg, field, link) {
+  function showError(msg, field, link, action) {
     $('modalMsg').textContent = msg;
     $('modalLink').hidden = !link;
     if (link) { $('modalLink').href = link.href; $('modalLink').textContent = link.text; }
+    $('modalAct').hidden = !action;
+    if (action) {
+      $('modalAct').textContent = action.text;
+      $('modalAct').onclick = function () { $('modal').hidden = true; action.fn(); };
+    }
     $('modal').hidden = false;
     $('modalOk').focus();
     $('modalOk').onclick = function () {
@@ -277,6 +320,121 @@
       if (field && $(field)) { $(field).classList.add('bad'); $(field).focus(); }
     };
   }
+
+  // ---- Accès GitHub : demande de copie d'un nouveau ticker par l'application.
+  function ghToken() { try { return localStorage.getItem('mcGithubToken') || ''; } catch (e) { return ''; } }
+  function ghSetToken(t) {
+    try { if (t) localStorage.setItem('mcGithubToken', t); else localStorage.removeItem('mcGithubToken'); } catch (e) {}
+    ghButton();
+  }
+  function ghButton() {
+    var ok = !!ghToken();
+    $('ghbtn').textContent = ok ? 'Accès GitHub configuré ✓ (tous les tickers)' : 'Accès GitHub : à configurer';
+    $('ghbtn').classList.toggle('ok', ok);
+  }
+  function ghError(msg, url) { var e = new Error(msg); e.user = true; e.url = url; return e; }
+  function gh(method, path, body, token) {
+    var h = { 'Authorization': 'Bearer ' + (token || ghToken()), 'Accept': 'application/vnd.github+json' };
+    if (body) h['Content-Type'] = 'application/json';
+    return fetch(GH_API + path, { method: method, headers: h, cache: 'no-store',
+      body: body ? JSON.stringify(body) : undefined }).then(function (r) {
+      if (r.status === 401) throw ghError('Jeton GitHub refusé (expiré ou mal copié). Recréez-le avec le bouton « Accès GitHub ».');
+      if (r.status === 403 || (r.status === 404 && method !== 'GET')) {
+        throw ghError('Le jeton GitHub n\'a pas les droits nécessaires : il faut la permission « Actions : Read and write » ' +
+          'sur le dépôt 192bobba.github.io. Recréez-le avec le bouton « Accès GitHub ».');
+      }
+      return r;
+    });
+  }
+  // Lit un fichier de cours directement dans le dépôt (sans attendre la republication du site).
+  function ghFile(f) {
+    var h = { 'Authorization': 'Bearer ' + ghToken(), 'Accept': 'application/vnd.github.raw+json' };
+    return fetch(GH_API + '/contents/montecarlo-web/data/' + encodeURIComponent(f) + '?ref=main', { headers: h, cache: 'no-store' })
+      .then(function (r) {
+        if (r.status === 404) return null;
+        if (!r.ok) throw ghError('Lecture de la copie impossible (code ' + r.status + ').');
+        return r.text();
+      });
+  }
+  function runsList() {
+    return gh('GET', '/actions/workflows/cours-yahoo.yml/runs?event=workflow_dispatch&per_page=20')
+      .then(function (r) {
+        if (!r.ok) throw ghError('GitHub ne répond pas correctement (code ' + r.status + ').');
+        return r.json();
+      }).then(function (j) { return j.workflow_runs || []; });
+  }
+  function unknownError(t) {
+    return ghError('Ticker « ' + t + ' » inconnu sur Yahoo Finance.\n\nVérifiez l\'orthographe et le suffixe de la ' +
+      'bourse : NESN.SW (Zurich), MC.PA (Paris), SAP.DE (Xetra), VWRL.L (Londres), IWDA.AS (Amsterdam), ' +
+      'BTC-USD (crypto), ^GSPC (indice).');
+  }
+  // Lance la copie du ticker sur GitHub et attend le fichier.
+  function requestCopy(t) {
+    var title = 'Cours Yahoo : ' + t;
+    var started = Date.now();
+    var before = {};
+    setStatus('Copie de ' + t + ' depuis Yahoo : demande envoyée à GitHub...');
+    return runsList().then(function (runs) {
+      runs.forEach(function (x) { before[x.id] = true; });
+      return gh('POST', '/actions/workflows/cours-yahoo.yml/dispatches', { ref: 'main', inputs: { tickers: t } });
+    }).then(function (r) {
+      if (r.status !== 204) {
+        return r.text().then(function (x) { throw ghError('GitHub a refusé la demande (code ' + r.status + ').\n' + x.slice(0, 300)); });
+      }
+      return new Promise(function (resolve, reject) {
+        var tick = function () {
+          var sec = Math.round((Date.now() - started) / 1000);
+          if (sec > 360) { reject(ghError('La copie de ' + t + ' prend trop de temps. Réessayez dans quelques minutes.')); return; }
+          runsList().then(function (runs) {
+            var run = runs.filter(function (x) { return !before[x.id] && x.display_title === title; })[0];
+            if (!run || run.status !== 'completed') {
+              setStatus('Copie de ' + t + ' depuis Yahoo via GitHub : ' +
+                (!run || run.status === 'queued' ? 'en attente' : 'en cours') + '... ' + sec + ' s');
+              setTimeout(tick, 4000);
+              return;
+            }
+            if (run.conclusion !== 'success') {
+              reject(ghError('La copie de ' + t + ' a échoué sur GitHub (Yahoo n\'a peut-être pas répondu). Réessayez plus tard.', run.html_url));
+              return;
+            }
+            return ghFile(fileName(t)).then(function (txt) {
+              if (txt === null) reject(unknownError(t)); else resolve(txt);
+            });
+          }).catch(reject);
+        };
+        setTimeout(tick, 4000);
+      });
+    });
+  }
+
+  function openGitHubDialog() {
+    $('ghToken').value = ghToken();
+    $('ghMsg').textContent = ''; $('ghMsg').className = '';
+    $('ghDialog').hidden = false;
+  }
+  $('ghbtn').addEventListener('click', openGitHubDialog);
+  $('ghLink').addEventListener('click', function (e) { e.preventDefault(); openGitHubDialog(); });
+  $('ghClose').addEventListener('click', function () { $('ghDialog').hidden = true; });
+  $('ghDelete').addEventListener('click', function () {
+    ghSetToken(''); $('ghToken').value = '';
+    $('ghMsg').textContent = 'Jeton supprimé de cet appareil.'; $('ghMsg').className = '';
+  });
+  $('ghSave').addEventListener('click', function () {
+    var t = $('ghToken').value.trim();
+    if (!t) { $('ghMsg').textContent = 'Collez d\'abord le jeton.'; $('ghMsg').className = 'bad'; return; }
+    $('ghMsg').textContent = 'Vérification du jeton...'; $('ghMsg').className = '';
+    gh('GET', '/actions/workflows/cours-yahoo.yml', null, t).then(function (r) {
+      if (r.status === 404) throw ghError('Ce jeton n\'a pas accès au dépôt 192bobba.github.io (étape 3) ou à la permission Actions (étape 4).');
+      if (!r.ok) throw ghError('GitHub a répondu avec le code ' + r.status + '.');
+      ghSetToken(t);
+      $('ghMsg').textContent = 'Jeton enregistré : vous pouvez charger n\'importe quel ticker Yahoo Finance.';
+      $('ghMsg').className = 'good';
+    }).catch(function (e) {
+      $('ghMsg').textContent = e.user ? e.message : 'Vérification impossible (connexion ?) : ' + e.message;
+      $('ghMsg').className = 'bad';
+    });
+  });
+  ghButton();
 
   function updateButtons() {
     var b = state.busy || !state.engine;
@@ -382,7 +540,8 @@
       });
     };
     return get('data/' + encodeURIComponent(f), { cache: 'no-cache' }).then(function (txt) {
-      return txt !== null ? txt : get(RAW + encodeURIComponent(f) + '?t=' + Date.now(), { cache: 'no-store' });
+      if (txt !== null) return txt;
+      return ghToken() ? ghFile(f) : get(RAW + encodeURIComponent(f) + '?t=' + Date.now(), { cache: 'no-store' });
     });
   }
 
@@ -393,28 +552,36 @@
     $('ticker').value = t;
     if (!t) { showError('Saisissez un ticker (ex. AMD, AAPL, NESN.SW, UBSG.SW).', 'ticker'); return; }
     setBusy(true, 'Chargement... (' + t + ')');
+    var fresh = false;
     fetchCopy(t).then(function (txt) {
+      if (txt !== null) return txt;
+      var unknown = dataIndex && dataIndex.unknown && dataIndex.unknown.indexOf(t) >= 0;
+      if (unknown) throw unknownError(t);
+      if (!ghToken()) return null;
+      fresh = true;
+      return requestCopy(t);
+    }).then(function (txt) {
       if (txt === null) {
         setBusy(false, state.loaded ? 'Ticker non disponible. Données précédentes conservées.' : 'Ticker non disponible.');
-        var unknown = dataIndex && dataIndex.unknown && dataIndex.unknown.indexOf(t) >= 0;
-        var avail = dataIndex ? dataIndex.tickers.map(function (x) { return x.ticker; }).join(', ') : '';
-        showError(unknown
-          ? 'Ticker « ' + t + ' » inconnu sur Yahoo Finance.\n\nVérifiez l\'orthographe et le suffixe de la bourse (ex. NESN.SW pour Zurich, MC.PA pour Paris).'
-          : '« ' + t + ' » n\'est pas encore copié sur le site.\n\n' +
-            (avail ? 'Disponibles : ' + avail + '.\n\n' : '') +
-            'Pour l\'ajouter (environ 2 minutes) : touchez le bouton ci-dessous, connectez-vous à GitHub, ' +
-            'touchez « Run workflow », saisissez ' + t + ' dans le champ, puis « Run workflow ». ' +
-            'Revenez ensuite ici et touchez « Charger les données ».\n\n' +
-            'Vous pouvez aussi utiliser « Ouvrir un CSV... ».',
-          'ticker', unknown ? null : { href: ADD_URL, text: 'Ajouter sur GitHub' });
+        showError('« ' + t + ' » n\'est pas encore copié dans l\'application.\n\n' +
+          'Pour charger automatiquement n\'importe quel ticker Yahoo Finance (action, ETF, indice, crypto…), ' +
+          'configurez une seule fois l\'accès GitHub (environ 3 minutes) : touchez « Configurer » ci-dessous.\n\n' +
+          'Vous pouvez aussi utiliser « Ouvrir un CSV... ».',
+          'ticker', { href: ADD_URL, text: 'Ajouter à la main' }, { text: 'Configurer', fn: openGitHubDialog });
         return;
       }
-      var label = 'Yahoo Finance (copie' + (dataIndex ? ' du ' + frDate(dataIndex.updated) : ' quotidienne') + ')';
+      var label = fresh ? 'Yahoo Finance (copie du ' + frDate(Date.now() / 1000) + ')'
+        : 'Yahoo Finance (copie' + (dataIndex ? ' du ' + frDate(dataIndex.updated) : ' quotidienne') + ')';
+      if (fresh) loadIndex();
       return call('yahooText', { text: txt, ticker: t, years: $('years').value, source: label }).then(dataLoaded);
     }).catch(function (e) {
-      setBusy(false, 'Échec du chargement.');
+      setBusy(false, state.loaded ? 'Échec du chargement. Données précédentes conservées.' : 'Échec du chargement.');
+      if (e && e.user) {
+        showError(e.message, 'ticker', e.url ? { href: e.url, text: 'Voir sur GitHub' } : null);
+        return;
+      }
       showError('Impossible de récupérer les cours de « ' + t + ' » : pas de connexion Internet ?\n\nDétail : ' +
-        e.message + '\n\nSans connexion, vous pouvez utiliser « Ouvrir un CSV... ».');
+        (e && e.message) + '\n\nSans connexion, vous pouvez utiliser « Ouvrir un CSV... ».');
     });
   }
   $('load').addEventListener('click', loadYahoo);

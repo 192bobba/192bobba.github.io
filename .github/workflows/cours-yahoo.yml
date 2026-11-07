@@ -1,52 +1,50 @@
 # Copie les cours Yahoo Finance sur le site pour l'application Monte Carlo
 # (les navigateurs ne peuvent pas interroger Yahoo directement).
-# Ajouter un ticker : Actions > « Cours Yahoo » > Run workflow, saisir le ticker.
+# - chaque soir de semaine : mise à jour de tous les tickers de montecarlo-web/data/tickers.txt ;
+# - à la demande (l'application le lance pour un nouveau ticker, ou Actions > Run workflow).
 name: Cours Yahoo
+run-name: "Cours Yahoo : ${{ inputs.tickers || 'mise à jour de tous les tickers' }}"
 
 on:
   schedule:
-    - cron: '35 21 * * 1-5'   # chaque soir de semaine, après la clôture de Wall Street (heure UTC)
+    - cron: '35 21 * * 1-5'   # après la clôture de Wall Street (heure UTC)
   workflow_dispatch:
     inputs:
       tickers:
-        description: 'Ticker(s) à ajouter, séparés par des virgules (ex. MC.PA, RO.SW). Vide = simple mise à jour.'
+        description: 'Ticker(s) à ajouter, séparés par des virgules (ex. MC.PA, VWCE.DE). Vide = tout mettre à jour.'
         required: false
         default: ''
 
 permissions:
   contents: write
-  pages: write
-
-concurrency:
-  group: cours-yahoo
-  cancel-in-progress: false
 
 jobs:
   copie:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       - name: Télécharger les cours
         env:
-          NOUVEAUX: ${{ github.event.inputs.tickers }}
-        run: python3 montecarlo/tools/cours_yahoo.py "$NOUVEAUX"
+          TICKERS: ${{ inputs.tickers }}
+        run: python3 montecarlo/tools/cours_yahoo.py --out "$RUNNER_TEMP/cours" "$TICKERS"
 
       - name: Enregistrer sur le site
+        env:
+          TICKERS: ${{ inputs.tickers }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add montecarlo-web/data
-          if git diff --cached --quiet; then echo "Aucun changement."; exit 0; fi
-          git commit -q -m "Cours Yahoo du $(date -u +%d.%m.%Y)"
-          git pull -q --rebase origin "${GITHUB_REF_NAME}"
-          git push -q origin "HEAD:${GITHUB_REF_NAME}"
-
-      - name: Republier le site
-        if: success()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages/builds" || echo "Republication automatique déjà en cours."
+          # Plusieurs copies peuvent tourner en même temps : on repart du dépôt à jour.
+          for i in 1 2 3 4 5 6 7 8; do
+            git fetch -q origin "$GITHUB_REF_NAME"
+            git reset -q --hard "origin/$GITHUB_REF_NAME"
+            python3 montecarlo/tools/cours_yahoo.py --merge "$RUNNER_TEMP/cours"
+            git add montecarlo-web/data
+            if git diff --cached --quiet; then echo "Aucun changement."; exit 0; fi
+            git commit -q -m "Cours Yahoo : ${TICKERS:-mise à jour du $(date -u +%d.%m.%Y)}"
+            if git push -q origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            sleep $((i * 4))
+          done
+          exit 1
