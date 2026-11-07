@@ -1,0 +1,52 @@
+# Copie les cours Yahoo Finance sur le site pour l'application Monte Carlo
+# (les navigateurs ne peuvent pas interroger Yahoo directement).
+# Ajouter un ticker : Actions > « Cours Yahoo » > Run workflow, saisir le ticker.
+name: Cours Yahoo
+
+on:
+  schedule:
+    - cron: '35 21 * * 1-5'   # chaque soir de semaine, après la clôture de Wall Street (heure UTC)
+  workflow_dispatch:
+    inputs:
+      tickers:
+        description: 'Ticker(s) à ajouter, séparés par des virgules (ex. MC.PA, RO.SW). Vide = simple mise à jour.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: cours-yahoo
+  cancel-in-progress: false
+
+jobs:
+  copie:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Télécharger les cours
+        env:
+          NOUVEAUX: ${{ github.event.inputs.tickers }}
+        run: python3 montecarlo/tools/cours_yahoo.py "$NOUVEAUX"
+
+      - name: Enregistrer sur le site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add montecarlo-web/data
+          if git diff --cached --quiet; then echo "Aucun changement."; exit 0; fi
+          git commit -q -m "Cours Yahoo du $(date -u +%d.%m.%Y)"
+          git pull -q --rebase origin "${GITHUB_REF_NAME}"
+          git push -q origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Republier le site
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages/builds" || echo "Republication automatique déjà en cours."

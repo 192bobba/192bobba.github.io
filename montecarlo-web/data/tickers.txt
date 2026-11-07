@@ -1,0 +1,18 @@
+# Tickers copiés chaque soir depuis Yahoo Finance pour l'application Monte Carlo.
+# Un ticker par ligne (ex. AMD, NESN.SW). Ajout possible depuis GitHub : Actions > Cours Yahoo > Run workflow.
+AMD
+AAPL
+MSFT
+NVDA
+GOOGL
+AMZN
+META
+TSLA
+NESN.SW
+UBSG.SW
+NOVN.SW
+ZURN.SW
+ABBN.SW
+^GSPC
+^SSMI
+RO.SW
