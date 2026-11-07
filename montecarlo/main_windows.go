@@ -7,7 +7,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -311,15 +310,13 @@ func userError(format string, args ...interface{}) error {
 	return &mc.UserError{Msg: fmt.Sprintf(format, args...)}
 }
 
-// readInt lit un entier dans [lo, hi].
-func readInt(le *walk.LineEdit, name string, lo, hi int) (int, error) {
-	v, ok, err := mc.ParseNumber(le.Text())
-	if !ok || err != nil || v != math.Trunc(v) || v < float64(lo) || v > float64(hi) {
-		le.SetFocus()
-		return 0, userError("%s : saisissez un nombre entier entre %s et %s.", name,
-			mc.FormatNumber(float64(lo), 0), mc.FormatNumber(float64(hi), 0))
+// readYears lit le nombre d'années d'historique.
+func (a *app) readYears() (int, error) {
+	y, err := mc.ParseYears(a.yearsLE.Text())
+	if err != nil {
+		a.yearsLE.SetFocus()
 	}
-	return int(v), nil
+	return y, err
 }
 
 // ---------------------------------------------------------------- données
@@ -328,7 +325,7 @@ func (a *app) loadYahoo() {
 	if a.busy {
 		return
 	}
-	years, err := readInt(a.yearsLE, "Années d'historique", mc.MinYears, mc.MaxYears)
+	years, err := a.readYears()
 	if err != nil {
 		a.showError(err)
 		return
@@ -357,7 +354,7 @@ func (a *app) openCSV() {
 	if a.busy {
 		return
 	}
-	years, err := readInt(a.yearsLE, "Années d'historique", mc.MinYears, mc.MaxYears)
+	years, err := a.readYears()
 	if err != nil {
 		a.showError(err)
 		return
@@ -428,47 +425,23 @@ func (a *app) dataLoaded(s *mc.Series, h *mc.HistStats, err error) {
 // ---------------------------------------------------------------- simulation
 
 func (a *app) readParams() (mc.Params, error) {
-	p := mc.Params{S0: a.series.LastPrice}
-	var err error
-	if p.Horizon, err = readInt(a.horizonLE, "Horizon", mc.MinHorizon, mc.MaxHorizon); err != nil {
-		return p, err
+	in := mc.ParamInput{
+		Horizon: a.horizonLE.Text(),
+		Sims:    a.simsLE.Text(),
+		Return:  a.retLE.Text(),
+		Vol:     a.volLE.Text(),
+		Target:  a.targetLE.Text(),
+		Method:  a.methodCB.CurrentIndex(),
 	}
-	if p.NSims, err = readInt(a.simsLE, "Nombre de simulations", mc.MinSims, mc.MaxSims); err != nil {
-		return p, err
+	p, field, err := mc.ParseParams(in, a.series, a.hist)
+	if err != nil {
+		le := map[string]*walk.LineEdit{mc.FieldHorizon: a.horizonLE, mc.FieldSims: a.simsLE,
+			mc.FieldReturn: a.retLE, mc.FieldVol: a.volLE, mc.FieldTarget: a.targetLE}[field]
+		if le != nil {
+			le.SetFocus()
+		}
 	}
-	p.Method = mc.Method(a.methodCB.CurrentIndex())
-	if p.Method < 0 {
-		p.Method = mc.MethodNormal
-	}
-	v, ok, perr := mc.ParseNumber(a.retLE.Text())
-	switch {
-	case perr != nil:
-		a.retLE.SetFocus()
-		return p, userError("Rendement annuel attendu : nombre invalide (ex. 8 ou 7,5). Laissez vide pour l'historique.")
-	case ok:
-		p.AnnReturn = v / 100
-	default:
-		p.AnnReturn, p.ReturnFromHist = a.hist.AnnReturn, true
-	}
-	v, ok, perr = mc.ParseNumber(a.volLE.Text())
-	switch {
-	case perr != nil:
-		a.volLE.SetFocus()
-		return p, userError("Volatilité annuelle : nombre invalide (ex. 30 ou 25,5). Laissez vide pour l'historique.")
-	case ok:
-		p.AnnVol = v / 100
-	default:
-		p.AnnVol, p.VolFromHist = a.hist.AnnVol, true
-	}
-	v, ok, perr = mc.ParseNumber(a.targetLE.Text())
-	switch {
-	case perr != nil || (ok && v <= 0):
-		a.targetLE.SetFocus()
-		return p, userError("Prix cible : saisissez un prix positif, ou laissez vide.")
-	case ok:
-		p.Target = v
-	}
-	return p, p.Validate()
+	return p, err
 }
 
 func (a *app) runSimulation() {

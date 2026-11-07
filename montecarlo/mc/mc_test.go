@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"math"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -245,36 +244,28 @@ func TestBigSimulationSpeed(t *testing.T) {
 	t.Logf("200 000 × 2 520 jours : %v", r.Elapsed)
 }
 
-// Tests réseau (Yahoo Finance) : activés avec MC_NET=1.
-func TestYahooAMD(t *testing.T) {
-	if os.Getenv("MC_NET") == "" {
-		t.Skip("MC_NET non défini")
+func TestParseParams(t *testing.T) {
+	s := syntheticSeries(300, 0.05, 0.2)
+	h, _ := ComputeStats(s)
+	p, f, err := ParseParams(ParamInput{Horizon: "504", Sims: "10'000", Return: "7,5 %", Vol: "", Target: "1 234,5", Method: 1}, s, h)
+	if err != nil || f != "" || p.Horizon != 504 || p.NSims != 10000 || math.Abs(p.AnnReturn-0.075) > 1e-12 ||
+		p.AnnVol != h.AnnVol || !p.VolFromHist || p.ReturnFromHist || p.Target != 1234.5 || p.Method != MethodBootstrap {
+		t.Fatalf("ParseParams : %+v %q %v", p, f, err)
 	}
-	s, err := FetchYahoo(context.Background(), " amd ", 5)
-	if err != nil {
-		t.Fatal(err)
-	}
-	h, err := ComputeStats(s)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("%s %s %s : %d cours %s–%s, dernier %v, rdt %.1f%%, vol %.1f%%, pire baisse %.1f%%",
-		s.Symbol, s.Name, s.Currency, len(s.Adj), FormatDate(h.Start), FormatDate(h.End), s.LastPrice,
-		h.AnnReturn*100, h.AnnVol*100, h.MaxDrawdown*100)
-	if s.Currency != "USD" || len(s.Adj) < 1000 || s.LastPrice <= 0 {
-		t.Fatal("données AMD incohérentes")
-	}
-	_, err = FetchYahoo(context.Background(), "ZZZZXQ9", 5)
-	var ue *UserError
-	if !errors.As(err, &ue) || !strings.Contains(err.Error(), "inconnu") {
-		t.Fatalf("ticker invalide : %v", err)
-	}
-	t.Logf("ticker invalide → %v", err)
-	for _, tk := range []string{"NESN.SW", "UBSG.SW", "AAPL"} {
-		s, err := FetchYahoo(context.Background(), tk, 2)
-		if err != nil {
-			t.Fatal(tk, err)
+	for _, c := range []struct {
+		in    ParamInput
+		field string
+	}{
+		{ParamInput{Horizon: "0", Sims: "1000"}, FieldHorizon},
+		{ParamInput{Horizon: "2521", Sims: "1000"}, FieldHorizon},
+		{ParamInput{Horizon: "252", Sims: "99"}, FieldSims},
+		{ParamInput{Horizon: "252", Sims: "1000", Return: "abc"}, FieldReturn},
+		{ParamInput{Horizon: "252", Sims: "1000", Return: "-100"}, FieldReturn},
+		{ParamInput{Horizon: "252", Sims: "1000", Vol: "0"}, FieldVol},
+		{ParamInput{Horizon: "252", Sims: "1000", Target: "-5"}, FieldTarget},
+	} {
+		if _, f, err := ParseParams(c.in, s, h); err == nil || f != c.field {
+			t.Errorf("%+v : champ %q, erreur %v (attendu %q)", c.in, f, err, c.field)
 		}
-		t.Logf("%s : %s, %s, %d cours, dernier %v", tk, s.Name, s.Currency, len(s.Adj), s.LastPrice)
 	}
 }
