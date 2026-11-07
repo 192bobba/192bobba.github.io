@@ -76,6 +76,55 @@
   td.neg{color:var(--rouge)} td.pos{color:var(--vert)}
   tr.total.pos td:last-child{color:var(--vert)} tr.total.neg td:last-child{color:var(--rouge)}
   .tbl-wrap{overflow-x:auto}
+  tr.hl td{background:var(--bleu-bg);font-weight:700}
+
+  /* Étapes (budget → profil → stratégie) */
+  nav.steps{max-width:1200px;margin:0 auto;padding:0 20px 10px;display:flex;gap:8px;flex-wrap:wrap}
+  nav.steps button{background:var(--bg);color:var(--muted);border:1px solid var(--bord);border-radius:20px;padding:6px 14px 6px 6px;display:inline-flex;align-items:center;gap:8px}
+  nav.steps button .n{width:22px;height:22px;border-radius:50%;background:#fff;border:1px solid var(--bord);display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+  nav.steps button:hover{color:var(--txt)}
+  nav.steps button.active{background:var(--rouge);border-color:var(--rouge);color:#fff}
+  nav.steps button.active .n{color:var(--rouge);border-color:#fff}
+  nav.tabs.hidden{display:none}
+  @media(max-width:720px){header{position:static}
+    nav.steps{flex-wrap:nowrap;overflow-x:auto;padding:0 12px 10px;gap:5px}
+    nav.steps button{flex:none;font-size:12.5px;padding:5px 9px 5px 4px;gap:6px}
+    nav.steps .long{display:none}}
+
+  /* Questionnaire */
+  .q{padding:14px 0;border-top:1px solid var(--bord)}
+  .q.first{border-top:none;padding-top:2px}
+  .q-title{font-weight:700;display:flex;gap:8px;align-items:flex-start}
+  .q-num{flex:none;width:22px;height:22px;border-radius:50%;background:var(--bleu-bg);color:var(--bleu);font-size:12px;display:inline-flex;align-items:center;justify-content:center;margin-top:1px}
+  .q .inline-help{margin-left:30px}
+  .q-opts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0 30px}
+  @media(max-width:720px){.q-opts,.q .inline-help{margin-left:0}}
+  label.q-opt{display:flex;align-items:center;gap:8px;border:1px solid var(--bord);border-radius:10px;padding:9px 12px;cursor:pointer;font-size:14px;color:var(--txt);font-weight:500;margin:0;background:#fff;transition:.15s}
+  label.q-opt:hover{border-color:var(--bleu)}
+  label.q-opt.sel{border-color:var(--rouge);background:var(--rouge-bg)}
+  label.q-opt input{width:auto;margin:0;accent-color:var(--rouge)}
+  .progress{height:8px;background:var(--bg);border-radius:6px;overflow:hidden;margin-top:8px}
+  .progress>div{height:100%;background:var(--vert);transition:width .3s}
+
+  /* Profil & stratégie */
+  .gauge{display:flex;gap:4px;margin:12px 0 4px}
+  .gauge div{flex:1;height:10px;border-radius:5px;background:var(--bord)}
+  .gauge-lbl{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;text-align:center;font-size:11.5px;color:var(--muted)}
+  .gauge-lbl span.on{color:var(--txt);font-weight:800}
+  .prof-name{font-size:26px;font-weight:800}
+  .reasons{margin:12px 0 0;padding:0;list-style:none;font-size:13.5px}
+  .reasons li{padding:4px 0}
+  .prio{display:flex;gap:12px;padding:13px 0;border-top:1px solid var(--bord)}
+  .prio:first-child{border-top:none;padding-top:2px}
+  .prio .ico{flex:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .prio .ico.ok{background:var(--vert-bg)} .prio .ico.todo{background:var(--orange-bg)} .prio .ico.ko{background:var(--rouge-bg)} .prio .ico.info{background:var(--bleu-bg)}
+  .prio h3{font-size:15px;margin:3px 0 2px}
+  .prio p{margin:0;font-size:13.5px;color:var(--muted)}
+  .bar-track.gap{gap:2px;background:transparent}
+  .bar-track.gap .bar-seg:first-child{border-radius:6px 0 0 6px} .bar-track.gap .bar-seg:last-child{border-radius:0 6px 6px 0}
+  .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+  .idea h3{font-size:15px;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .idea p{margin:4px 0;font-size:13.5px}
   .tbl-wrap td.num{white-space:nowrap}
   @media(max-width:720px){.tbl-wrap table{font-size:12.5px}.tbl-wrap th,.tbl-wrap td{padding:7px 4px}.tbl-wrap th{font-size:10.5px}}
   .del{background:var(--rouge-bg);color:var(--rouge);border-radius:8px;padding:9px 11px;font-weight:700}
@@ -138,6 +187,7 @@
       <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
     </div>
   </div>
+  <nav class="steps" id="steps"></nav>
   <nav class="tabs" id="tabs"></nav>
 </header>
 
@@ -476,12 +526,88 @@
       <div class="tbl-wrap" id="pa_courantTbl"></div>
     </div>
   </section>
+
+  <!-- ============ PROFIL INVESTISSEUR ============ -->
+  <section class="tab-page" data-tab="profil">
+    <div class="card">
+      <h2>🧑‍💼 Votre profil d'investisseur</h2>
+      <p class="sub">Quelques questions sur vos objectifs, votre horizon et votre rapport au risque. Combinées à votre budget (étape ①), elles servent à construire votre stratégie (étape ③). Il n'y a pas de bonne ou de mauvaise réponse.</p>
+      <div class="progress"><div id="q_bar" style="width:0"></div></div>
+      <div class="small muted" id="q_count" style="margin-top:6px"></div>
+    </div>
+    <div id="q_list"></div>
+    <div class="card" id="q_result"></div>
+  </section>
+
+  <!-- ============ STRATÉGIE ============ -->
+  <section class="tab-page" data-tab="strategie">
+    <div id="s_incomplete"></div>
+    <div id="s_main">
+      <div class="card">
+        <h2>🧭 Votre profil : <span id="s_name"></span></h2>
+        <div id="s_profile"></div>
+      </div>
+
+      <div class="card">
+        <h2>🪜 Votre plan d'action, dans l'ordre</h2>
+        <p class="sub">Les bases d'abord, les placements ensuite : chaque étape s'appuie sur votre budget et votre profil.</p>
+        <div id="s_prio"></div>
+      </div>
+
+      <div class="card">
+        <h2>🥧 Répartition conseillée de vos placements</h2>
+        <p class="sub">Pour l'argent investi en plus de votre réserve de sécurité et de votre 3ᵉ pilier. Les montants sont calculés depuis votre budget ; vous pouvez les modifier.</p>
+        <div class="grid g2">
+          <div>
+            <label>Capital à investir maintenant (CHF)</label>
+            <input type="number" id="s_capital" placeholder="auto" oninput="calc()">
+            <div class="inline-help" id="s_capitalHelp"></div>
+          </div>
+          <div>
+            <label>Montant à investir chaque mois (CHF)</label>
+            <input type="number" id="s_mensuel" placeholder="auto" oninput="calc()">
+            <div class="inline-help" id="s_mensuelHelp"></div>
+          </div>
+        </div>
+        <div class="bar-wrap" style="margin-top:16px">
+          <div class="bar-track gap" id="s_bar"></div>
+          <div class="small muted" id="s_legend" style="margin-top:8px"></div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Classe d'actifs</th><th class="num">Part</th><th class="num">Capital</th><th class="num">Par mois</th></tr></thead>
+            <tbody id="s_alloc"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📈 Ce que ça pourrait donner</h2>
+        <p class="sub">Valeur estimée de ces placements (capital de départ + versements mensuels), comparée à un compte épargne.</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Dans</th><th class="num">Total versé</th><th class="num">Compte épargne</th><th class="num">Défavorable</th><th class="num">Médian</th><th class="num">Favorable</th></tr></thead>
+            <tbody id="s_proj"></tbody>
+          </table>
+        </div>
+        <div id="s_projNote"></div>
+      </div>
+
+      <div class="card">
+        <h2>💡 Pistes d'actifs</h2>
+        <p class="sub">Les types de placements qui composent votre répartition, pour savoir quoi chercher. Ce sont des catégories, pas des produits précis.</p>
+        <div id="s_ideas"></div>
+      </div>
+
+      <div class="warn">⚠️ <b>Stratégie indicative, à but éducatif.</b> Elle est générée automatiquement à partir de vos réponses et de votre budget ; ce n'est pas un conseil en placement personnalisé. Les rendements ne sont pas garantis : un placement en actions peut perdre de la valeur. Pour une décision importante, faites-vous accompagner par un·e conseiller·ère financier·ère.</div>
+    </div>
+  </section>
 </main>
 
 <footer>
   <hr class="hr">
   <p><b>Mon Budget Suisse</b> — outil personnel, hors-ligne. Toutes vos données restent sur <b>votre</b> ordinateur (stockage local du navigateur). Aucune donnée n'est envoyée sur internet. Pensez à <b>exporter</b> régulièrement votre fichier de sauvegarde.</p>
-  <p>Les calculs fiscaux et de prévoyance sont des <b>estimations simplifiées</b> et ne constituent pas un conseil financier ou fiscal. Pour des décisions importantes, consultez un·e spécialiste ou les calculateurs officiels.</p>
+  <p>Les calculs fiscaux et de prévoyance, ainsi que le profil et la stratégie d'investissement, sont des <b>estimations simplifiées</b> et ne constituent pas un conseil financier, fiscal ou en placement. Pour des décisions importantes, consultez un·e spécialiste ou les calculateurs officiels.</p>
 </footer>
 
 <script>
@@ -525,14 +651,17 @@ function blankState(){
     fixes:[], variables:[], assurances:[], epargne:[], pilier:[], comptes:[],
     pilierCfg:{type:"caisse",plafond:"7258",versement:"",pay:"direct"},
     impots:{statut:"single",canton:"VD",enfants:"0",revenu:"",deductions:"0",tauxCanton:"",pay:"souscompte"},
-    budgetModel:"503020"
+    budgetModel:"503020",
+    profil:{},                          // réponses au questionnaire investisseur { idQuestion: valeur }
+    strategie:{capital:"",mensuel:""}   // montants à investir saisis à la main (vide = calcul automatique)
   };
 }
 // Complète un état chargé (ancienne sauvegarde, fichier importé) avec les champs ajoutés depuis.
 function normalizeState(s){
   const b=blankState();
   s=Object.assign(b,s||{});
-  ['revenus','pilierCfg','impots'].forEach(k=>{ s[k]=Object.assign(blankState()[k], s[k]||{}); });
+  ['revenus','pilierCfg','impots','strategie'].forEach(k=>{ s[k]=Object.assign(blankState()[k], s[k]||{}); });
+  s.profil = (s.profil && typeof s.profil==='object') ? Object.assign({},s.profil) : {};
   ['fixes','variables','assurances','epargne','pilier','comptes'].forEach(k=>{ if(!Array.isArray(s[k])) s[k]=[]; });
   // Anciennes données sans mode de paiement : mensuel → prélevé directement, sinon → sous-compte
   const mensuel = it => FREQ[it.freq||'mensuel']>=12;
@@ -545,24 +674,39 @@ function normalizeState(s){
 }
 
 /* =================== TABS =================== */
-const TABS = [["revenus","💰 Revenus"],["fixes","🏠 Frais fixes"],["variables","🛒 Frais variables"],
-  ["assurances","🛡️ Assurances"],["epargne","🐷 Épargne"],["pilier","🌳 3ᵉ pilier"],["fortune","🏦 Comptes & Fortune"],
-  ["impots","🧾 Impôts"],["budget","⚖️ Budget"],["paie","💸 Jour de paie"]];
+// Trois étapes : ① le budget (plusieurs onglets), ② le profil investisseur, ③ la stratégie
+const STEPS = [[1,"Mon budget"],[2,"Mon profil"," d'investisseur"],[3,"Ma stratégie"]]; // 3ᵉ élément : masqué sur mobile
+const TABS = [["revenus","💰 Revenus",1],["fixes","🏠 Frais fixes",1],["variables","🛒 Frais variables",1],
+  ["assurances","🛡️ Assurances",1],["epargne","🐷 Épargne",1],["pilier","🌳 3ᵉ pilier",1],["fortune","🏦 Comptes & Fortune",1],
+  ["impots","🧾 Impôts",1],["budget","⚖️ Budget",1],["paie","💸 Jour de paie",1],
+  ["profil","🧑‍💼 Profil investisseur",2],["strategie","🧭 Stratégie",3]];
+const lastTab = {1:"revenus",2:"profil",3:"strategie"}; // dernier onglet ouvert dans chaque étape
 function buildTabs(){
-  const nav=document.getElementById('tabs');
-  TABS.forEach(([id,lbl],i)=>{
+  const steps=document.getElementById('steps');
+  STEPS.forEach(([n,lbl,suite])=>{
     const b=document.createElement('button');
-    b.textContent=lbl; b.dataset.tab=id; if(i===0)b.classList.add('active');
+    b.innerHTML=`<span class="n">${n}</span>${lbl}${suite?`<span class="long">${suite}</span>`:''}`; b.dataset.step=n;
+    b.onclick=()=>goTab(lastTab[n]);
+    steps.appendChild(b);
+  });
+  const nav=document.getElementById('tabs');
+  TABS.filter(t=>t[2]===1).forEach(([id,lbl])=>{
+    const b=document.createElement('button');
+    b.textContent=lbl; b.dataset.tab=id;
     b.onclick=()=>goTab(id);
     nav.appendChild(b);
   });
-  document.querySelector('.tab-page[data-tab="revenus"]').classList.add('active');
+  goTab('revenus',true);
   document.querySelectorAll('.pay-legend').forEach(e=>e.innerHTML=PAY_LEGEND);
 }
-function goTab(id){
+function goTab(id,noScroll){
+  const step=(TABS.find(t=>t[0]===id)||TABS[0])[2];
+  lastTab[step]=id;
+  document.querySelectorAll('nav.steps button').forEach(x=>x.classList.toggle('active',+x.dataset.step===step));
+  document.getElementById('tabs').classList.toggle('hidden',step!==1);
   document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
   document.querySelectorAll('.tab-page').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
-  window.scrollTo({top:0,behavior:'smooth'});
+  if(!noScroll) window.scrollTo({top:0,behavior:'smooth'});
 }
 
 /* =================== HELPERS =================== */
@@ -767,6 +911,7 @@ function pull(){ // lire les champs simples dans state
   state.pilierCfg={type:val('p_type'),plafond:val('p_plafond'),versement:val('p_versement'),pay:val('p_pay')};
   state.impots={statut:val('i_statut'),canton:val('i_canton'),enfants:val('i_enfants'),
     revenu:val('i_revenu'),deductions:val('i_deductions'),tauxCanton:val('i_tauxCanton'),pay:val('i_pay')};
+  state.strategie={capital:val('s_capital'),mensuel:val('s_mensuel')};
 }
 function val(id){const e=document.getElementById(id); return e?e.value:"";}
 function push(){ // écrire state dans les champs
@@ -779,6 +924,8 @@ function push(){ // écrire state dans les champs
   setV('i_revenu',state.impots.revenu); setV('i_deductions',state.impots.deductions);
   setV('i_tauxCanton',state.impots.tauxCanton||CANTONS[state.impots.canton][1]);
   setV('i_pay',state.impots.pay);
+  setV('s_capital',state.strategie.capital); setV('s_mensuel',state.strategie.mensuel);
+  renderQuestions();
   renderItems('fixes'); renderItems('variables'); renderInsurances(); renderItems('epargne'); renderPilier(); renderComptes();
 }
 function setV(id,v){const e=document.getElementById(id); if(e!=null)e.value=(v==null?"":v);}
@@ -930,6 +1077,15 @@ function calc(){
 
   /* --- Jour de paie --- */
   renderPaie({salaireVerse,extraAnnuel,mois,prime,tTot,versement3a});
+
+  /* --- Profil investisseur & stratégie (s'appuient sur tout ce qui précède) --- */
+  const ctx={netMois,reste,depensesMois,totCash,versement3a,plafond3a:num(state.pilierCfg.plafond),soldeEpargne,
+    placements:state.comptes.filter(c=>c.cat==='placement').reduce((s,c)=>s+num(c.balance),0),
+    dettes:state.comptes.filter(c=>c.cat==='dette' && num(c.balance)>0),
+    impot:x=>taxTotal(x,statut,tauxCC), taxable};
+  const prof=computeProfile(state.profil,ctx);
+  renderProfilResult(prof);
+  renderStrategie(prof,ctx);
 
   save0();
 }
@@ -1104,6 +1260,266 @@ function modelAdvice(m,n,w,s,net){
   return `<div class="warn">${msgs.map(x=>'• '+x).join('<br>')}</div>`;
 }
 
+/* =================== PROFIL INVESTISSEUR =================== */
+// Questionnaire : chaque question a un id, un texte et des options [valeur, libellé].
+// Les valeurs numériques (horizon, reaction, perte, portefeuille) servent directement au score.
+const QUESTIONS=[
+  {sec:"🎯 Vous et vos objectifs"},
+  {id:"age", q:"Quel âge avez-vous ?", opts:[["u30","Moins de 30 ans"],["30-44","30 à 44 ans"],["45-54","45 à 54 ans"],["55-64","55 à 64 ans"],["65+","65 ans et plus"]]},
+  {id:"objectif", q:"Quel est votre objectif principal en investissant ?", opts:[["preserver","Préserver mon capital"],["revenu","Obtenir un revenu complémentaire régulier"],["projet","Financer un projet (logement, études…)"],["retraite","Préparer ma retraite"],["croissance","Faire croître mon patrimoine à long terme"]]},
+  {id:"horizon", q:"Dans combien de temps aurez-vous besoin de cet argent ?", help:"C'est le critère le plus important : plus l'horizon est long, plus vous avez le temps de traverser les baisses.", opts:[["1","Moins de 2 ans"],["2","2 à 5 ans"],["3","5 à 8 ans"],["4","8 à 15 ans"],["5","Plus de 15 ans"]]},
+  {id:"besoin", q:"Pourriez-vous devoir retirer une partie de cet argent avant cette échéance ?", opts:[["probable","Oui, c'est probable"],["possible","C'est possible"],["peu","Peu probable"],["non","Non, cet argent est vraiment disponible"]]},
+  {id:"revenus", q:"Vos revenus sont-ils stables ?", opts:[["tres","Très stables (emploi de longue date, fonction publique, rente)"],["stable","Plutôt stables"],["variable","Variables (indépendant·e, commissions, contrat temporaire)"],["incertain","Incertains (recherche d'emploi, changement prévu)"]]},
+  {sec:"📚 Vos connaissances"},
+  {id:"connaissances", q:"Comment évaluez-vous vos connaissances en placements ?", opts:[["aucune","Aucune"],["bases","Les bases (action, obligation)"],["bonnes","Bonnes (ETF, diversification, frais)"],["expert","Avancées (je suis les marchés)"]]},
+  {id:"experience", q:"Dans quoi avez-vous déjà investi ?", opts:[["jamais","Rien, ou seulement un compte épargne"],["3a","Un 3a (bancaire ou en fonds)"],["fonds","Des fonds ou des ETF"],["actions","Des actions, obligations ou produits structurés"]]},
+  {sec:"🎢 Votre rapport au risque"},
+  {id:"reaction", q:"Vos placements perdent 20 % en quelques mois. Que faites-vous ?", opts:[["0","Je vends tout pour ne pas perdre plus"],["1","J'en vends une partie"],["2","Je ne touche à rien et j'attends"],["3","J'en profite pour acheter davantage"]]},
+  {id:"perte", q:"Quelle baisse temporaire sur une année pourriez-vous supporter sans paniquer ?", opts:[["0","Presque aucune (moins de 5 %)"],["1","Jusqu'à 10 %"],["2","Jusqu'à 20 %"],["3","Jusqu'à 30 %"],["4","Plus de 30 %, si le potentiel est là"]]},
+  {id:"portefeuille", q:"Vous placez CHF 10'000 pour un an. Quel portefeuille choisissez-vous ?", help:"Montant au bout d'un an, dans une mauvaise et dans une bonne année.", opts:[["0","A : de 9'900 à 10'300"],["1","B : de 9'300 à 10'800"],["2","C : de 8'500 à 11'500"],["3","D : de 7'500 à 12'500"]]},
+  {id:"esg", q:"La durabilité (critères ESG) compte-t-elle dans vos choix ?", opts:[["non","Pas particulièrement"],["oui","Oui, si possible"],["important","Oui, c'est essentiel"]]}
+];
+const QIDS=QUESTIONS.filter(q=>q.id).map(q=>q.id);
+const HORIZON_ANS={1:2,2:4,3:7,4:12,5:20}; // nombre d'années représentatif de chaque réponse « horizon »
+function optLabel(id,v){ const q=QUESTIONS.find(x=>x.id===id); const o=q&&q.opts.find(x=>x[0]===v); return o?o[1]:''; }
+
+// Classes d'actifs. ret = rendement annuel moyen supposé (après frais, avant inflation, en %),
+// vol = volatilité annuelle typique (%), crise = baisse typique lors d'un krach type 2008 (%).
+// L'ordre des clés est celui de l'affichage (couleurs vérifiées pour le daltonisme dans cet ordre).
+const ASSETS={
+  actCH:{label:"Actions suisses",icon:"🇨🇭",color:"#d52b1e",ret:5.0,vol:14,crise:35,
+    quoi:"ETF ou fonds indiciel sur un indice large du marché suisse (plusieurs centaines d'entreprises), plutôt qu'un indice limité à une vingtaine de grandes sociétés.",
+    pourquoi:"En francs, donc sans risque de change ; dividendes réguliers ; entreprises actives dans le monde entier.",
+    attention:"Marché dominé par quelques géants (pharma, alimentation, finance) : à combiner avec des actions internationales."},
+  actMonde:{label:"Actions internationales",icon:"🌍",color:"#2563eb",ret:6.0,vol:16,crise:40,
+    quoi:"ETF indiciel mondial (pays développés, éventuellement émergents), qui couvre des milliers d'entreprises en un seul produit.",
+    pourquoi:"Le principal moteur de croissance à long terme, avec la diversification la plus large.",
+    attention:"Risque de change (dollar, euro…) et fortes baisses possibles à court terme. Comparez les frais annuels (TER)."},
+  oblig:{label:"Obligations en CHF",icon:"📄",color:"#0d9488",ret:1.0,vol:4,crise:5,
+    quoi:"ETF ou fonds d'obligations en francs (Confédération, cantons, entreprises solides).",
+    pourquoi:"Stabilisent le portefeuille et amortissent les baisses des actions, sans risque de change.",
+    attention:"Rendement faible quand les taux sont bas ; leur prix baisse quand les taux montent."},
+  immo:{label:"Immobilier suisse (fonds)",icon:"🏢",color:"#7c3aed",ret:3.5,vol:9,crise:15,
+    quoi:"Fonds immobiliers suisses cotés en bourse, ou ETF qui en regroupent plusieurs.",
+    pourquoi:"Revenus locatifs réguliers, peu liés aux actions, sans devoir acheter un bien.",
+    attention:"Un fonds peut coter plus cher que la valeur de ses immeubles (« agio ») ; sensible à la hausse des taux."},
+  or:{label:"Or",icon:"🥇",color:"#b45309",ret:2.0,vol:15,crise:10,
+    quoi:"ETF adossé à de l'or physique, ou petits lingots.",
+    pourquoi:"Valeur refuge en cas de crise, peu liée aux actions.",
+    attention:"Ne verse aucun revenu et son prix varie beaucoup : à garder comme petite poche."},
+  cash:{label:"Liquidités",icon:"💵",color:"#0891b2",ret:0.3,vol:0.5,crise:0,
+    quoi:"Compte épargne ou dépôt à terme, en plus de votre réserve de sécurité.",
+    pourquoi:"Toujours disponible ; permet de profiter d'une baisse pour acheter.",
+    attention:"Rapporte peu : sur le long terme, l'inflation en réduit la valeur."}
+};
+// Portefeuilles modèles par niveau de risque (en % ; total 100)
+const PROFILES=[null,
+  {name:"Prudent",  alloc:{actCH:10,actMonde:10,oblig:55,immo:10,or:5,cash:10},desc:"La stabilité avant tout : peu de variations, un rendement modeste."},
+  {name:"Modéré",   alloc:{actCH:15,actMonde:20,oblig:45,immo:10,or:5,cash:5}, desc:"Surtout des placements stables, avec une part d'actions pour battre l'inflation."},
+  {name:"Équilibré",alloc:{actCH:20,actMonde:30,oblig:30,immo:10,or:5,cash:5}, desc:"Moitié actions, moitié placements plus stables : un compromis entre croissance et sérénité."},
+  {name:"Dynamique",alloc:{actCH:25,actMonde:45,oblig:15,immo:10,or:5},        desc:"Surtout des actions : un bon potentiel à long terme, en acceptant de fortes baisses en cours de route."},
+  {name:"Offensif", alloc:{actCH:25,actMonde:65,immo:5,or:5},                  desc:"Presque tout en actions : le potentiel le plus élevé, mais des baisses de 30 à 40 % sont possibles certaines années."}
+];
+const ALLOC_COURT_TERME={oblig:30,cash:70}; // horizon < 2 ans : pas d'actions
+function portfolioStats(alloc){
+  let ret=0,vol=0,crise=0,actions=0;
+  for(const k in alloc){ const w=alloc[k]/100, a=ASSETS[k]; ret+=w*a.ret; vol+=w*a.vol; crise+=w*a.crise; if(k.startsWith('act')) actions+=alloc[k]; }
+  return {ret, vol:vol*0.8, crise, actions}; // ×0,8 : effet simplifié de la diversification
+}
+
+// Niveau de risque = le plus prudent entre tolérance (réactions aux pertes), capacité (horizon,
+// besoin de liquidités, revenus, budget) et deux limites (objectif « préserver », débutant·e).
+function computeProfile(p,ctx){
+  const answered=QIDS.filter(id=>p[id]!=null && p[id]!=='').length;
+  const res={complete:answered===QIDS.length, answered, total:QIDS.length};
+  if(!res.complete) return res;
+  const pts=+p.reaction + +p.perte + +p.portefeuille;           // 0 à 10 points
+  const tol=1+Math.round(pts/10*4);                              // → niveau 1 à 5
+  let cap=+p.horizon; const capNotes=["horizon de "+optLabel('horizon',p.horizon).toLowerCase()];
+  if(p.besoin==='probable'){cap-=2; capNotes.push("retrait probable avant l'échéance");}
+  else if(p.besoin==='possible'){cap-=1; capNotes.push("retrait possible avant l'échéance");}
+  if(p.revenus==='incertain'){cap-=1; capNotes.push("revenus incertains");}
+  if(ctx.netMois>0 && ctx.reste<0){cap-=1; capNotes.push("budget déficitaire");}
+  cap=Math.max(1,Math.min(5,cap));
+  let lim=5; const limits=[];
+  if(p.objectif==='preserver'){lim=Math.min(lim,2); limits.push("Objectif « préserver mon capital » : niveau 2 maximum.");}
+  if(p.connaissances==='aucune' && p.experience==='jamais'){lim=Math.min(lim,3); limits.push("Première expérience de placement : niveau 3 maximum pour commencer.");}
+  return {...res, tol, cap, lim, limits, capNotes, level:Math.min(tol,cap,lim), horizonYears:HORIZON_ANS[p.horizon]};
+}
+
+function renderQuestions(){
+  let html='', n=0, first=false;
+  QUESTIONS.forEach(q=>{
+    if(q.sec){ html+=(html?'</div>':'')+`<div class="card"><h2>${q.sec}</h2>`; first=true; return; }
+    n++;
+    const v=state.profil[q.id];
+    html+=`<div class="q${first?' first':''}">
+      <div class="q-title"><span class="q-num">${n}</span><span>${q.q}</span></div>
+      ${q.help?`<div class="inline-help">${q.help}</div>`:''}
+      <div class="q-opts">${q.opts.map(([val,lbl])=>`<label class="q-opt${v===val?' sel':''}"><input type="radio" name="q_${q.id}" value="${val}"${v===val?' checked':''} onchange="setProfil('${q.id}',this.value)">${lbl}</label>`).join('')}</div>
+    </div>`;
+    first=false;
+  });
+  document.getElementById('q_list').innerHTML=html+'</div>';
+}
+function setProfil(id,v){
+  state.profil[id]=v;
+  document.querySelectorAll(`input[name="q_${id}"]`).forEach(i=>i.parentElement.classList.toggle('sel',i.checked));
+  calc();
+}
+function gaugeHTML(level){
+  return `<div class="gauge">${[1,2,3,4,5].map(i=>`<div style="${i<=level?'background:var(--rouge)':''}"></div>`).join('')}</div>
+    <div class="gauge-lbl">${[1,2,3,4,5].map(i=>`<span class="${i===level?'on':''}">${PROFILES[i].name}</span>`).join('')}</div>`;
+}
+function renderProfilResult(prof){
+  document.getElementById('q_bar').style.width=(prof.answered/prof.total*100)+'%';
+  setText('q_count', prof.complete ? `✅ Questionnaire complet (${prof.total}/${prof.total})` : `${prof.answered} / ${prof.total} réponses`);
+  const el=document.getElementById('q_result');
+  if(!prof.complete){
+    const r=prof.total-prof.answered;
+    el.innerHTML=`<h2>🧭 Votre résultat</h2><p class="muted" style="margin:0">Encore ${r} question${r>1?'s':''} et votre profil s'affichera ici.</p>`;
+    return;
+  }
+  const P=PROFILES[prof.level];
+  el.innerHTML=`<h2>🧭 Votre résultat</h2>
+    <div class="prof-name">${P.name} <span class="small muted">— niveau ${prof.level} sur 5</span></div>
+    ${gaugeHTML(prof.level)}
+    <p style="margin:14px 0">${P.desc}</p>
+    <button class="btn-primary" onclick="goTab('strategie')">Voir ma stratégie →</button>`;
+}
+
+/* =================== STRATÉGIE =================== */
+function stackBar(barId,legendId,segs){
+  const tot=segs.reduce((s,x)=>s+x.value,0);
+  document.getElementById(barId).innerHTML = tot>0 ? segs.map(s=>{
+    const w=s.value/tot*100;
+    return `<div class="bar-seg" style="width:${w}%;background:${s.color}" title="${s.label} : ${Math.round(w)} %">${w>=8?Math.round(w)+' %':''}</div>`;
+  }).join('') : '';
+  document.getElementById(legendId).innerHTML=segs.map(s=>`<span style="display:inline-block;margin-right:14px"><span class="swatch" style="background:${s.color}"></span>${s.label}</span>`).join('');
+}
+function renderStrategie(prof,ctx){
+  const inc=document.getElementById('s_incomplete'), main=document.getElementById('s_main');
+  if(!prof.complete){
+    inc.innerHTML=`<div class="card"><h2>🧭 Votre stratégie</h2><div class="info">Pour construire votre stratégie, répondez d'abord au questionnaire de l'étape ② (<b>${prof.answered}/${prof.total}</b> réponses). Elle combinera vos réponses et votre budget.</div><button class="btn-primary" onclick="goTab('profil')">Compléter mon profil →</button></div>`;
+    main.style.display='none'; return;
+  }
+  inc.innerHTML=''; main.style.display='';
+  const p=state.profil, P=PROFILES[prof.level];
+  const courtTerme = +p.horizon===1;
+  const alloc = courtTerme ? ALLOC_COURT_TERME : P.alloc;
+  const S=portfolioStats(alloc);
+
+  /* --- Profil --- */
+  setText('s_name',P.name);
+  const why=[
+    `🎢 <b>Tolérance au risque</b> (vos réactions face aux baisses) : niveau ${prof.tol}, ${PROFILES[prof.tol].name.toLowerCase()}.`,
+    `⏳ <b>Capacité de risque</b> (${prof.capNotes.join(', ')}) : niveau ${prof.cap}, ${PROFILES[prof.cap].name.toLowerCase()}.`,
+    ...prof.limits.map(l=>`🔒 ${l}`),
+    `➡️ On retient toujours le niveau le plus prudent : <b>${P.name}</b>.`
+  ];
+  document.getElementById('s_profile').innerHTML=`${gaugeHTML(prof.level)}
+    <p style="margin:14px 0">${P.desc}${courtTerme?' <b>Avec un horizon de moins de 2 ans, la répartition ci-dessous exclut les actions.</b>':''}</p>
+    <div class="grid g3">
+      <div class="stat"><div class="lbl">Part en actions</div><div class="val">${S.actions} %</div></div>
+      <div class="stat"><div class="lbl">Rendement moyen espéré</div><div class="val">≈ ${pct(S.ret)}/an</div></div>
+      <div class="stat"><div class="lbl">Baisse possible en cas de krach</div><div class="val">≈ −${Math.round(S.crise)} %</div></div>
+    </div>
+    <ul class="reasons">${why.map(w=>`<li>${w}</li>`).join('')}</ul>`;
+
+  /* --- Plan d'action --- */
+  const prios=[]; const add=(st,t,d)=>prios.push({st,t,d});
+  // 1. Budget
+  if(ctx.netMois<=0) add('ko',"Renseigner votre budget","Commencez par l'étape ① : la stratégie s'appuie sur vos revenus et vos dépenses.");
+  else if(ctx.reste<0) add('ko',"Remettre le budget à l'équilibre",`Il manque ${CHF(-ctx.reste)} par mois. Avant d'investir, revenez à l'équilibre (onglet ⚖️ Budget).`);
+  else add('ok',"Budget à l'équilibre",`Après dépenses et épargne prévue, il vous reste ${CHF(ctx.reste)} par mois.`);
+  // 2. Dettes
+  const estHypo=d=>/hypoth/i.test(d.label||'');
+  const conso=ctx.dettes.filter(d=>!estHypo(d)), tConso=conso.reduce((s,d)=>s+num(d.balance),0);
+  if(tConso>0) add('todo',"Rembourser les dettes de consommation",`${CHF(tConso)} (${conso.map(d=>esc(d.label||'dette')).join(', ')}). Un crédit ou un leasing coûte souvent 4 à 10 % par an, plus que ce que rapporte un placement prudent : remboursez-le en priorité si le contrat le permet sans pénalité.`);
+  else add('ok',"Pas de dette de consommation","Aucun crédit ni leasing renseigné dans l'onglet 🏦 Comptes & Fortune.");
+  if(ctx.dettes.some(estHypo)) add('info',"Hypothèque","Pas forcément à rembourser en priorité : son taux est souvent bas et les intérêts sont déductibles. L'amortissement indirect via le 3a peut être intéressant, à voir avec votre banque.");
+  // 3. Réserve de sécurité (6 mois si revenus variables)
+  const moisRes=['variable','incertain'].includes(p.revenus)?6:3, cible=ctx.depensesMois*moisRes;
+  const reserveOk=ctx.soldeEpargne>=cible;
+  // Tant que la réserve n'est pas complète, elle reçoit le virement d'épargne cash (ou, à défaut, le reste du budget)
+  const versReserve = reserveOk ? 0 : (ctx.totCash>0 ? ctx.totCash : Math.max(0,ctx.reste));
+  if(ctx.depensesMois>0){
+    if(reserveOk) add('ok',"Réserve de sécurité constituée",`${CHF(ctx.soldeEpargne)} d'épargne, pour un objectif de ${moisRes} mois de dépenses (${CHF(cible)}).`);
+    else { const manque=cible-ctx.soldeEpargne;
+      add('todo',"Constituer une réserve de sécurité",`Objectif : ${moisRes} mois de dépenses, soit ${CHF(cible)}. Il manque ${CHF(manque)}${versReserve>0?` : en y versant ${CHF(versReserve)}/mois${ctx.totCash>0?'':' (le reste du budget)'}, comptez environ ${Math.ceil(manque/versReserve)} mois`:''}. Gardez-la sur un compte épargne, jamais en bourse.`); }
+  }
+  // 4. 3ᵉ pilier
+  if(ctx.plafond3a>0){
+    if(ctx.versement3a>=ctx.plafond3a*0.99) add('ok',"3ᵉ pilier au maximum",`Vous versez ${CHF(ctx.versement3a)} par an, le plafond déductible.`);
+    else { const manque=ctx.plafond3a-ctx.versement3a, eco=ctx.impot(ctx.taxable)-ctx.impot(Math.max(0,ctx.taxable-manque));
+      add('todo',"Verser le maximum en 3ᵉ pilier",`Encore ${CHF(manque)} par an possibles (${CHF(manque/12)}/mois), pour environ ${CHF(eco)} d'impôts en moins chaque année.`); }
+  }
+  const procheRetraite=['55-64','65+'].includes(p.age);
+  if(prof.level>=3 && +p.horizon>=3 && !procheRetraite && !state.pilier.some(x=>x.kind==='titres'))
+    add('todo',"Investir votre 3a en titres",`Avec votre horizon et un profil ${P.name.toLowerCase()}, un 3a en fonds ou ETF (environ ${S.actions} % d'actions) a un potentiel bien supérieur à un 3a bancaire, rémunéré autour de 0 à 1 %.`);
+  if(p.age==='55-64') add('info',"Préparer les retraits du 3a","Ouvrez plusieurs comptes 3a et retirez-les sur plusieurs années : l'impôt sur les retraits en capital est progressif.");
+  // 5. Investir le surplus
+  const autoCap=Math.max(0,ctx.soldeEpargne-cible)+ctx.placements;
+  const autoMens=Math.max(0, ctx.totCash+Math.max(0,ctx.reste)-versReserve);
+  const capital=state.strategie.capital!=='' ? num(state.strategie.capital) : autoCap;
+  const mensuel=state.strategie.mensuel!=='' ? num(state.strategie.mensuel) : autoMens;
+  setText('s_capitalHelp',`Auto : ${CHF(autoCap)} = épargne au-delà de la réserve (${CHF(Math.max(0,ctx.soldeEpargne-cible))}) + placements existants (${CHF(ctx.placements)}).`);
+  setText('s_mensuelHelp', reserveOk
+    ? `Auto : ${CHF(autoMens)} = virement d'épargne cash (${CHF(ctx.totCash)}) + reste du budget (${CHF(Math.max(0,ctx.reste))}).`
+    : `Auto : ${CHF(autoMens)} = épargne cash + reste du budget, moins ${CHF(versReserve)}/mois qui vont d'abord à la réserve de sécurité.`);
+  if(courtTerme) add('info',"Garder cet argent disponible","Avec un horizon de moins de 2 ans, pas d'actions : compte épargne, dépôt à terme ou obligations à court terme.");
+  else if(capital+mensuel>0){
+    const parts=[];
+    if(capital>0) parts.push(`Placez ${CHF(capital)}${capital>=20000?' en plusieurs fois sur 6 à 12 mois':''}`);
+    if(mensuel>0) parts.push(`${capital>0?'puis i':'I'}nvestissez ${CHF(mensuel)} chaque mois par un ordre d'achat automatique`);
+    add('todo',`Investir selon votre profil ${P.name.toLowerCase()}`,`${parts.join(', ')}, selon la répartition ci-dessous.${ctx.placements>0?' Réorganisez aussi vos placements existants selon cette répartition.':''}`);
+  } else add('info',`Investir selon votre profil ${P.name.toLowerCase()}`,"Une fois les étapes précédentes faites, le surplus de votre budget pourra être investi selon la répartition ci-dessous.");
+  // 6. Prévoyance professionnelle
+  if(state.pilierCfg.type==='caisse') add('info',"Rachat LPP : à vérifier","Votre certificat de caisse de pension indique peut-être un « potentiel de rachat ». Un rachat est déductible des impôts, mais l'argent reste dans la prévoyance (et aucun retrait en capital n'est possible pendant 3 ans) : à envisager une fois les étapes précédentes faites.");
+  // 7. Suivi
+  add('info',"Chaque année","Rééquilibrez vers la répartition cible, versez le 3a avant le 31 décembre, comparez vos assurances (LAMal : résiliation avant le 30 novembre) et refaites ce questionnaire si votre situation change.");
+  const ICO={ok:'✅',todo:'🔶',ko:'⛔',info:'ℹ️'};
+  document.getElementById('s_prio').innerHTML=prios.map((x,i)=>`<div class="prio"><div class="ico ${x.st}">${ICO[x.st]}</div><div><h3>${i+1}. ${x.t}</h3><p>${x.d}</p></div></div>`).join('');
+
+  /* --- Répartition --- */
+  const keys=Object.keys(ASSETS).filter(k=>(alloc[k]||0)>0);
+  stackBar('s_bar','s_legend',keys.map(k=>({label:ASSETS[k].label,color:ASSETS[k].color,value:alloc[k]})));
+  document.getElementById('s_alloc').innerHTML=keys.map(k=>`<tr><td><span class="swatch" style="background:${ASSETS[k].color}"></span>${ASSETS[k].icon} ${ASSETS[k].label}</td><td class="num">${alloc[k]} %</td><td class="num">${CHF(capital*alloc[k]/100)}</td><td class="num">${CHF(mensuel*alloc[k]/100)}</td></tr>`).join('')
+    + `<tr class="total"><td>Total</td><td class="num">100 %</td><td class="num">${CHF(capital)}</td><td class="num">${CHF(mensuel)}</td></tr>`;
+
+  /* --- Projection --- */
+  // Valeur future : capital composé + versements annuels. Scénarios à ±1,28 écart-type du rendement
+  // annualisé (≈ 1 chance sur 10 de faire moins bien / mieux), l'écart se resserrant avec la durée.
+  const fv=(C,M,r,n)=>{ r/=100; const g=Math.pow(1+r,n); return C*g + (Math.abs(r)<1e-9 ? M*12*n : M*12*(g-1)/r); };
+  const years=[5,10,15,20];
+  const proche=years.reduce((a,b)=>Math.abs(b-prof.horizonYears)<Math.abs(a-prof.horizonYears)?b:a);
+  document.getElementById('s_proj').innerHTML = capital+mensuel>0 ? years.map(n=>{
+    const d=1.28*S.vol/Math.sqrt(n);
+    return `<tr class="${n===proche?'hl':''}"><td>${n} ans${n===proche?' <span class="small muted">(≈ votre horizon)</span>':''}</td>
+      <td class="num">${CHF(capital+mensuel*12*n)}</td><td class="num">${CHF(fv(capital,mensuel,ASSETS.cash.ret,n))}</td>
+      <td class="num">${CHF(fv(capital,mensuel,S.ret-d,n))}</td><td class="num"><b>${CHF(fv(capital,mensuel,S.ret,n))}</b></td>
+      <td class="num">${CHF(fv(capital,mensuel,S.ret+d,n))}</td></tr>`;
+  }).join('') : `<tr><td colspan="6" class="muted">Indiquez un capital ou un montant mensuel à investir pour voir la projection.</td></tr>`;
+  document.getElementById('s_projNote').innerHTML=`<p class="small muted">Hypothèses de rendement annuel moyen, après frais et avant inflation : ${keys.map(k=>`${ASSETS[k].label.toLowerCase()} ${pct(ASSETS[k].ret)}`).join(', ')}, soit <b>${pct(S.ret)}</b> pour votre répartition (compte épargne : ${pct(ASSETS.cash.ret)}). « Défavorable » et « favorable » : environ 1 chance sur 10 de faire moins bien, ou mieux, d'après les variations habituelles des marchés. Ce sont des ordres de grandeur, pas des promesses.</p>`;
+
+  /* --- Pistes d'actifs --- */
+  const tips=[
+    "Privilégiez des <b>ETF ou fonds indiciels</b> à frais bas (frais annuels, ou TER, idéalement sous 0,3 %).",
+    "Comparez les frais de courtage, de garde et le droit de timbre entre banques et courtiers en ligne : sur 20 ans, les frais pèsent lourd.",
+    "Automatisez : un achat chaque mois lisse le prix d'achat et évite de chercher le « bon moment ».",
+    "Rééquilibrez une fois par an pour revenir à la répartition cible."
+  ];
+  if(['aucune','bases'].includes(p.connaissances)) tips.push("Pour commencer simplement, 1 à 3 produits suffisent. Un fonds de stratégie « tout-en-un » correspondant à votre profil peut remplacer les lignes ci-dessus.");
+  if(p.objectif==='projet') tips.push("Projet à date fixe : réduisez progressivement la part d'actions 2 à 3 ans avant l'échéance.");
+  if(p.objectif==='revenu') tips.push("Pour un revenu régulier : les fonds immobiliers suisses et les actions suisses versent des distributions et dividendes réguliers.");
+  if(p.objectif==='retraite') tips.push("Pour la retraite : le 3a et un éventuel rachat LPP passent avant les placements libres, grâce à la déduction fiscale.");
+  if(p.esg!=='non') tips.push(`Durabilité : la plupart de ces catégories existent en version <b>ESG</b> ou <b>durable</b>${p.esg==='important'?' ; vérifiez les critères d\'exclusion de chaque produit':''}.`);
+  document.getElementById('s_ideas').innerHTML = keys.map(k=>{ const a=ASSETS[k];
+    return `<div class="ins-card idea"><h3>${a.icon} ${a.label} <span class="pill blue">${alloc[k]} %</span></h3>
+      <p><b>Quoi :</b> ${a.quoi}</p><p><b>Pourquoi :</b> ${a.pourquoi}</p><p class="muted"><b>Attention :</b> ${a.attention}</p></div>`;
+  }).join('') + `<div class="info"><b>🧰 Comment s'y prendre</b><ul style="margin:6px 0 0;padding-left:18px">${tips.map(t=>`<li>${t}</li>`).join('')}</ul></div>`;
+}
+
 /* =================== EXEMPLE DE DÉMONSTRATION =================== */
 // Profil cohérent et équilibré (personne seule, Suisse romande) — finit en positif
 // avec ~20 % d'épargne. Sert de point de départ : l'utilisateur n'a plus qu'à adapter.
@@ -1147,6 +1563,8 @@ function exampleState(){
   ];
   s.impots={statut:"single",canton:"VD",enfants:"0",revenu:"",deductions:"0",tauxCanton:String(CANTONS.VD[1]),pay:"souscompte"};
   s.budgetModel="503020";
+  s.profil={age:"30-44",objectif:"croissance",horizon:"4",besoin:"peu",revenus:"stable",connaissances:"bases",
+    experience:"3a",reaction:"2",perte:"2",portefeuille:"2",esg:"oui"};
   return s;
 }
 function loadExample(){
