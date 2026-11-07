@@ -14,3 +14,6 @@ Tests : `go test ./mc` (ajouter `MC_NET=1` pour tester Yahoo Finance en direct).
 
 Version web (application iPad, dossier `../montecarlo-web/`) : `./build-web.sh`.
 Après une mise à jour, changer `VERSION` dans `../montecarlo-web/sw.js` et les `?v=` de `index.html` et `sw.js`.
+
+Cours pour l'application iPad : `.github/workflows/cours-yahoo.yml` lance `tools/cours_yahoo.py` chaque soir
+de semaine (et à la demande, avec des tickers à ajouter) et enregistre les copies dans `../montecarlo-web/data/`.

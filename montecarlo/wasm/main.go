@@ -89,11 +89,14 @@ func check(_ js.Value, a []js.Value) interface{} {
 	})
 }
 
-// mcLoadYahoo(body, ticker, years, status)
+// mcLoadYahoo(body, ticker, years, status, source)
 func loadYahoo(_ js.Value, a []js.Value) interface{} {
 	s, err := mc.SeriesFromYahoo([]byte(a[0].String()), a[1].String(), a[3].Int(), a[2].Int())
 	if err != nil {
 		return fail(err, "")
+	}
+	if len(a) > 4 && a[4].Type() == js.TypeString && a[4].String() != "" {
+		s.Source = a[4].String()
 	}
 	return loaded(s)
 }

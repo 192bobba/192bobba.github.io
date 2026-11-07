@@ -76,6 +76,13 @@
   .info dd { margin: 0; overflow-wrap: anywhere; }
   .warning { color: var(--warn); font-weight: 600; font-size: 14px; margin: 10px 0 0; }
   .note { color: var(--muted); font-size: 12.5px; margin: 0 2px 10px; }
+  .note a { color: #1c4f87; }
+  .box .act { gap: 8px; }
+  .box .act a.btnlink {
+    font: inherit; min-height: 44px; padding: 6px 12px; border: 1px solid #707070; border-radius: 3px;
+    background: linear-gradient(#f6f6f6, #dcdcdc); color: var(--text); text-decoration: none;
+    display: flex; align-items: center;
+  }
   .results { display: flex; flex-direction: column; min-width: 0; }
   .tabs { display: flex; gap: 2px; padding-left: 4px; }
   .tabs button {
@@ -136,7 +143,8 @@
       <legend>Données</legend>
       <div class="form">
         <label for="ticker">Ticker Yahoo Finance :</label>
-        <input type="text" id="ticker" value="AMD" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go">
+        <input type="text" id="ticker" value="AMD" list="tickerList" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go">
+        <datalist id="tickerList"></datalist>
         <span class="hint">ex. NESN.SW</span>
         <label for="years">Années d'historique :</label>
         <input type="text" id="years" value="5" inputmode="numeric">
@@ -185,10 +193,10 @@
       </dl>
       <p class="warning" id="warning" hidden></p>
     </fieldset>
-    <p class="note">Yahoo Finance bloque les accès directs depuis un navigateur : la page passe alors par un
-      relais public (corsproxy.io, allorigins.win ou codetabs.com) qui ne voit que le ticker demandé.
-      Si aucun ne répond, utilisez « Ouvrir un CSV... » (colonnes Date et Adj Close ou Close).
-      Les calculs se font sur cet appareil.</p>
+    <p class="note">Les cours viennent d'une copie de Yahoo Finance mise à jour chaque soir de semaine
+      sur ce site <span id="dataDate"></span>. Tickers disponibles : <span id="tickerNames">AMD, AAPL, NESN.SW, UBSG.SW…</span>
+      Pour en ajouter un : <a id="addLink" href="#" target="_blank" rel="noopener">page GitHub « Cours Yahoo »</a>,
+      bouton « Run workflow ». Les calculs se font sur cet appareil.</p>
   </aside>
 
   <section class="results">
@@ -212,7 +220,7 @@
   <div class="box" role="alertdialog" aria-modal="true" aria-labelledby="modalCap" aria-describedby="modalMsg">
     <div class="cap" id="modalCap">Simulation Monte Carlo – Erreur</div>
     <div class="msg"><span class="icon" aria-hidden="true">✕</span><span id="modalMsg"></span></div>
-    <div class="act"><button id="modalOk">OK</button></div>
+    <div class="act"><a class="btnlink" id="modalLink" href="#" target="_blank" rel="noopener" hidden></a><button id="modalOk">OK</button></div>
   </div>
 </div>
 
@@ -225,8 +233,43 @@
 
   function setStatus(t) { $('state').textContent = t; }
 
-  function showError(msg, field) {
+  // Copie des cours Yahoo sur le site (voir .github/workflows/cours-yahoo.yml).
+  var REPO = '192bobba/192bobba.github.io';
+  var ADD_URL = 'https://github.com/' + REPO + '/actions/workflows/cours-yahoo.yml';
+  var RAW = 'https://raw.githubusercontent.com/' + REPO + '/main/montecarlo-web/data/';
+  var dataIndex = null;
+  $('addLink').href = ADD_URL;
+
+  function fileName(t) {
+    return t.replace(/\^/g, 'INDEX_').replace(/=/g, '_EQ_').replace(/[^A-Za-z0-9.\-]/g, '_') + '.json';
+  }
+  function frDate(sec) {
+    var d = new Date(sec * 1000);
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear();
+  }
+  function loadIndex() {
+    return fetch('data/index.json', { cache: 'no-cache' }).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function (idx) {
+      dataIndex = idx;
+      var list = '', names = [];
+      idx.tickers.forEach(function (t) {
+        list += '<option value="' + esc(t.ticker) + '">' + esc(t.name) + '</option>';
+        names.push(t.ticker);
+      });
+      $('tickerList').innerHTML = list;
+      $('tickerNames').textContent = names.join(', ') + '.';
+      $('dataDate').textContent = '(dernière mise à jour le ' + frDate(idx.updated) + ')';
+      return idx;
+    }).catch(function () { return null; });
+  }
+
+  function showError(msg, field, link) {
     $('modalMsg').textContent = msg;
+    $('modalLink').hidden = !link;
+    if (link) { $('modalLink').href = link.href; $('modalLink').textContent = link.text; }
     $('modal').hidden = false;
     $('modalOk').focus();
     $('modalOk').onclick = function () {
@@ -259,7 +302,7 @@
   }
 
   try {
-    worker = new Worker('worker.js?v=2');
+    worker = new Worker('worker.js?v=3');
   } catch (e) {
     setStatus('Ce navigateur ne peut pas lancer le moteur de calcul.');
     return;
@@ -273,7 +316,7 @@
   };
   // Le module de calcul est téléchargé par la page (et gardé en cache hors ligne).
   setStatus('Chargement du moteur de calcul...');
-  fetch('mc.wasm?v=2').then(function (r) {
+  fetch('mc.wasm?v=3').then(function (r) {
     if (!r.ok) throw new Error('code HTTP ' + r.status);
     return r.arrayBuffer();
   }).then(function (buf) {
@@ -293,6 +336,7 @@
     setStatus('Prêt. Saisissez un ticker puis « Charger les données ».');
     updateButtons();
   });
+  loadIndex();
 
   ['ticker', 'years', 'horizon', 'sims', 'ret', 'vol', 'target'].forEach(function (id) {
     $(id).addEventListener('input', function () { $(id).classList.remove('bad'); });
@@ -326,12 +370,52 @@
     updateButtons();
   }
 
+  // Récupère la copie des cours : sur le site, sinon directement sur GitHub
+  // (utile juste après l'ajout d'un ticker, avant la republication du site).
+  function fetchCopy(t) {
+    var f = fileName(t);
+    var get = function (url, opts) {
+      return fetch(url, opts).then(function (r) {
+        if (r.status === 404) return null;
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.text();
+      });
+    };
+    return get('data/' + encodeURIComponent(f), { cache: 'no-cache' }).then(function (txt) {
+      return txt !== null ? txt : get(RAW + encodeURIComponent(f) + '?t=' + Date.now(), { cache: 'no-store' });
+    });
+  }
+
   function loadYahoo() {
     if (state.busy || !state.engine) return;
     $('ticker').blur();
-    $('ticker').value = $('ticker').value.replace(/\s+/g, '').toUpperCase();
-    setBusy(true, 'Chargement... (' + $('ticker').value + ' sur Yahoo Finance)');
-    call('yahoo', { ticker: $('ticker').value, years: $('years').value }).then(dataLoaded);
+    var t = $('ticker').value.replace(/\s+/g, '').toUpperCase();
+    $('ticker').value = t;
+    if (!t) { showError('Saisissez un ticker (ex. AMD, AAPL, NESN.SW, UBSG.SW).', 'ticker'); return; }
+    setBusy(true, 'Chargement... (' + t + ')');
+    fetchCopy(t).then(function (txt) {
+      if (txt === null) {
+        setBusy(false, state.loaded ? 'Ticker non disponible. Données précédentes conservées.' : 'Ticker non disponible.');
+        var unknown = dataIndex && dataIndex.unknown && dataIndex.unknown.indexOf(t) >= 0;
+        var avail = dataIndex ? dataIndex.tickers.map(function (x) { return x.ticker; }).join(', ') : '';
+        showError(unknown
+          ? 'Ticker « ' + t + ' » inconnu sur Yahoo Finance.\n\nVérifiez l\'orthographe et le suffixe de la bourse (ex. NESN.SW pour Zurich, MC.PA pour Paris).'
+          : '« ' + t + ' » n\'est pas encore copié sur le site.\n\n' +
+            (avail ? 'Disponibles : ' + avail + '.\n\n' : '') +
+            'Pour l\'ajouter (environ 2 minutes) : touchez le bouton ci-dessous, connectez-vous à GitHub, ' +
+            'touchez « Run workflow », saisissez ' + t + ' dans le champ, puis « Run workflow ». ' +
+            'Revenez ensuite ici et touchez « Charger les données ».\n\n' +
+            'Vous pouvez aussi utiliser « Ouvrir un CSV... ».',
+          'ticker', unknown ? null : { href: ADD_URL, text: 'Ajouter sur GitHub' });
+        return;
+      }
+      var label = 'Yahoo Finance (copie' + (dataIndex ? ' du ' + frDate(dataIndex.updated) : ' quotidienne') + ')';
+      return call('yahooText', { text: txt, ticker: t, years: $('years').value, source: label }).then(dataLoaded);
+    }).catch(function (e) {
+      setBusy(false, 'Échec du chargement.');
+      showError('Impossible de récupérer les cours de « ' + t + ' » : pas de connexion Internet ?\n\nDétail : ' +
+        e.message + '\n\nSans connexion, vous pouvez utiliser « Ouvrir un CSV... ».');
+    });
   }
   $('load').addEventListener('click', loadYahoo);
   $('ticker').addEventListener('keydown', function (e) { if (e.key === 'Enter') loadYahoo(); });

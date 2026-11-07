@@ -1,0 +1,102 @@
+{
+"updated": 1794089989,
+"tickers": [
+{
+"ticker": "AMD",
+"file": "AMD.json",
+"name": "Advanced Micro Devices, Inc.",
+"currency": "USD"
+},
+{
+"ticker": "AAPL",
+"file": "AAPL.json",
+"name": "Apple Inc.",
+"currency": "USD"
+},
+{
+"ticker": "MSFT",
+"file": "MSFT.json",
+"name": "Microsoft Corporation",
+"currency": "USD"
+},
+{
+"ticker": "NVDA",
+"file": "NVDA.json",
+"name": "NVIDIA Corporation",
+"currency": "USD"
+},
+{
+"ticker": "GOOGL",
+"file": "GOOGL.json",
+"name": "Alphabet Inc.",
+"currency": "USD"
+},
+{
+"ticker": "AMZN",
+"file": "AMZN.json",
+"name": "Amazon.com, Inc.",
+"currency": "USD"
+},
+{
+"ticker": "META",
+"file": "META.json",
+"name": "Meta Platforms, Inc.",
+"currency": "USD"
+},
+{
+"ticker": "TSLA",
+"file": "TSLA.json",
+"name": "Tesla, Inc.",
+"currency": "USD"
+},
+{
+"ticker": "NESN.SW",
+"file": "NESN.SW.json",
+"name": "Nestlé S.A.",
+"currency": "CHF"
+},
+{
+"ticker": "UBSG.SW",
+"file": "UBSG.SW.json",
+"name": "UBS Group AG",
+"currency": "CHF"
+},
+{
+"ticker": "NOVN.SW",
+"file": "NOVN.SW.json",
+"name": "Novartis AG",
+"currency": "CHF"
+},
+{
+"ticker": "ZURN.SW",
+"file": "ZURN.SW.json",
+"name": "Zurich Insurance Group AG",
+"currency": "CHF"
+},
+{
+"ticker": "ABBN.SW",
+"file": "ABBN.SW.json",
+"name": "ABB Ltd",
+"currency": "CHF"
+},
+{
+"ticker": "^GSPC",
+"file": "INDEX_GSPC.json",
+"name": "S&P 500",
+"currency": "USD"
+},
+{
+"ticker": "^SSMI",
+"file": "INDEX_SSMI.json",
+"name": "SMI PR",
+"currency": "CHF"
+},
+{
+"ticker": "RO.SW",
+"file": "RO.SW.json",
+"name": "Roche Holding AG",
+"currency": "CHF"
+}
+],
+"unknown": []
+}
