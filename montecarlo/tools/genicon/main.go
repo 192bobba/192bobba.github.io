@@ -1,4 +1,6 @@
-// genicon dessine l'icône de l'application (winres/icon.png, 256×256).
+// genicon dessine l'icône de l'application.
+// Usage : genicon fichier.png [taille] [pleine]
+// « pleine » remplit tout le carré (icône d'écran d'accueil iPad).
 package main
 
 import (
@@ -7,17 +9,35 @@ import (
 	"image/png"
 	"math"
 	"os"
+	"strconv"
 )
 
 func main() {
+	size := 256
+	if len(os.Args) > 2 {
+		size, _ = strconv.Atoi(os.Args[2])
+	}
+	full := len(os.Args) > 3 && os.Args[3] == "pleine"
 	const n = 256
-	img := image.NewRGBA(image.Rect(0, 0, n, n))
+	k := float64(size) / n
+	img := image.NewRGBA(image.Rect(0, 0, size, size))
 	inRound := func(x, y int) bool {
+		if full {
+			return x >= 0 && y >= 0 && x < n && y < n
+		}
 		r := 36.0
 		fx, fy := float64(x)+0.5, float64(y)+0.5
 		cx := math.Max(r+8, math.Min(fx, n-8-r))
 		cy := math.Max(r+8, math.Min(fy, n-8-r))
 		return math.Hypot(fx-cx, fy-cy) <= r
+	}
+	// Dessin en coordonnées 256×256, échantillonné à la taille demandée.
+	set := func(x, y int, c color.RGBA) {
+		for py := int(float64(y) * k); py < int(float64(y+1)*k); py++ {
+			for px := int(float64(x) * k); px < int(float64(x+1)*k); px++ {
+				img.Set(px, py, c)
+			}
+		}
 	}
 	center := func(x float64) float64 { return 168 - 0.30*(x-28) } // tendance médiane
 	for y := 0; y < n; y++ {
@@ -47,14 +67,14 @@ func main() {
 			if fx >= 24 && fx <= 32 && fy >= 30 && fy <= 222 {
 				c = color.RGBA{60, 60, 60, 255}
 			}
-			img.Set(x, y, c)
+			set(x, y, c)
 		}
 	}
 	// contour
 	for y := 0; y < n; y++ {
 		for x := 0; x < n; x++ {
-			if inRound(x, y) && (!inRound(x-3, y) || !inRound(x+3, y) || !inRound(x, y-3) || !inRound(x, y+3)) {
-				img.Set(x, y, color.RGBA{70, 70, 70, 255})
+			if !full && inRound(x, y) && (!inRound(x-3, y) || !inRound(x+3, y) || !inRound(x, y-3) || !inRound(x, y+3)) {
+				set(x, y, color.RGBA{70, 70, 70, 255})
 			}
 		}
 	}
