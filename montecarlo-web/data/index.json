@@ -1,5 +1,5 @@
 {
-"updated": 1794089989,
+"updated": 1794090083,
 "tickers": [
 {
 "ticker": "AMD",
@@ -96,6 +96,12 @@
 "file": "RO.SW.json",
 "name": "Roche Holding AG",
 "currency": "CHF"
+},
+{
+"ticker": "MC.PA",
+"file": "MC.PA.json",
+"name": "LVMH Moët Hennessy - Louis Vuitton, Société Européenne",
+"currency": "EUR"
 }
 ],
 "unknown": []
