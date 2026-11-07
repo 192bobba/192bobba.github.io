@@ -16,44 +16,47 @@ Ce que le prototype sait faire :
 
 ---
 
-## 1. Lancer le site sur votre ordinateur
+## 1. Lancer le site
 
-### Étape 1 : installer Node.js (une seule fois)
+### La première fois (une seule fois)
 
-1. Allez sur **https://nodejs.org**
-2. Téléchargez la version **LTS** (le gros bouton vert) et installez-la comme n'importe quel programme.
+1. **Installez Node.js** : sur **https://nodejs.org**, téléchargez la version **LTS** et installez-la comme n'importe quel programme.
+2. **Téléchargez le site** avec ce lien direct :
+   https://github.com/192bobba/192bobba.github.io/archive/refs/heads/claude/ecommerce-valais-prototype-9hvr0l.zip
+3. **Décompressez** le fichier et rangez le dossier où vous voulez (par exemple dans Documents). Le site se trouve dans le sous-dossier **`boutique-valais`**.
 
-### Étape 2 : récupérer le code
+### Ensuite, à chaque fois : un double-clic
 
-Sur la page GitHub du projet, choisissez la bonne branche, puis cliquez sur **Code → Download ZIP**.
-Décompressez le fichier. Le site se trouve dans le dossier **`boutique-valais`**.
+Dans le dossier `boutique-valais` :
 
-### Étape 3 : lancer la boutique
+- **Windows** : double-cliquez sur `lancer-windows.bat`
+- **Mac** : double-cliquez sur `lancer-mac.command`. La toute première fois, si le Mac refuse de l'ouvrir, faites un clic droit sur le fichier, choisissez **Ouvrir**, puis confirmez.
 
-**Méthode la plus simple : le double-clic**
+Le site **se met à jour tout seul** avec la dernière version publiée, puis s'ouvre dans le navigateur
+sur **http://localhost:3000**. Vous n'avez plus jamais besoin de retélécharger le ZIP.
 
-- **Windows** : double-cliquez sur `lancer-windows.bat`.
-- **Mac** : double-cliquez sur `lancer-mac.command`. Si le Mac refuse de l'ouvrir, faites un clic droit sur le fichier, choisissez **Ouvrir**, puis confirmez.
+> Astuce : créez un raccourci sur le bureau.
+> Sur Windows, faites un clic droit sur `lancer-windows.bat`, puis **Envoyer vers → Bureau (créer un raccourci)**.
+> Sur Mac, faites glisser `lancer-mac.command` sur le bureau en maintenant **Cmd + Option**.
 
-**Méthode avec la commande (Windows, Mac, Linux)**
-
-1. Ouvrez un terminal *dans le dossier* `boutique-valais` :
-   - **Windows** : ouvrez le dossier dans l'Explorateur, cliquez dans la barre d'adresse, tapez `cmd` puis Entrée.
-   - **Mac** : dans le Finder, faites un clic droit sur le dossier, puis **Services → Nouveau terminal au dossier**.
-2. Tapez la commande suivante puis appuyez sur Entrée :
-
-   ```
-   npm start
-   ```
-
-Le navigateur s'ouvre tout seul sur **http://localhost:3000**. S'il ne s'ouvre pas, tapez cette adresse
-vous-même dans Chrome, Safari, Firefox ou Edge.
-
-> Aucune installation de paquets n'est nécessaire (`npm install` est inutile) : le projet n'a aucune dépendance.
+Si vous préférez le terminal, la commande `npm start`, tapée dans le dossier `boutique-valais`, fait exactement la même chose.
 
 ### Arrêter le site
 
-Revenez dans la fenêtre noire (le terminal) et appuyez sur **Ctrl + C**, ou fermez simplement cette fenêtre.
+Fermez la fenêtre noire (le terminal) qui s'est ouverte au lancement, ou appuyez sur **Ctrl + C** dans cette fenêtre.
+
+> Si le site est déjà ouvert, fermez d'abord l'ancienne fenêtre noire avant de relancer, sinon la nouvelle version ne pourra pas démarrer.
+
+### Comment marche la mise à jour automatique ?
+
+- À chaque lancement, le site télécharge la dernière version depuis GitHub et remplace les fichiers qui ont changé.
+- **Ce qui est conservé :** vos produits, vos commandes de test et vos photos envoyées depuis l'admin.
+- **Ce qui est remplacé :** les fichiers du site eux-mêmes. Une modification faite à la main dans ces fichiers (par exemple dans `src/config.js`) serait donc écrasée. Il vaut mieux demander le changement pour qu'il soit publié sur GitHub.
+- **Sans internet**, le site démarre simplement avec la version déjà installée.
+- **Pour voir les nouveaux produits de démonstration** après une mise à jour, lancez `npm run reset`. Attention : cela efface vos produits et vos commandes de test.
+- La source des mises à jour (dépôt, branche) se règle dans `package.json`, rubrique `updateSource`.
+
+> Aucune installation de paquets n'est nécessaire (`npm install` est inutile) : le projet n'a aucune dépendance.
 
 ---
 
@@ -96,7 +99,7 @@ depuis l'admin, avec le bouton « Choisir une photo… » dans la fiche d'un pro
 
 ```
 boutique-valais/
-├── server.js              Point d'entrée : lance le serveur web
+├── server.js              Serveur web du site
 ├── src/                   Code du serveur
 │   ├── config.js          Réglages (à modifier librement)
 │   ├── api.js             Adresses de l'API (/api/products, /api/orders, /api/admin/...)
@@ -120,7 +123,11 @@ boutique-valais/
 │       ├── pricing.js     Calcul des totaux
 │       ├── ui.js          Composants d'affichage réutilisables
 │       └── pages/         Une page = un fichier (accueil, boutique, produit, panier, commande, confirmation, admin)
-└── scripts/reset.js       Remise à zéro des données
+├── scripts/
+│   ├── start.js           Lancement : mise à jour automatique puis démarrage du serveur
+│   ├── update.js          Mise à jour automatique depuis GitHub
+│   └── reset.js           Remise à zéro des données
+└── lancer-windows.bat, lancer-mac.command   Lanceurs à double-cliquer
 ```
 
 Choix techniques : Node.js sans aucune dépendance, JavaScript « vanilla » dans le navigateur (aucun

@@ -6,4 +6,4 @@ if ! command -v node >/dev/null 2>&1; then
   read -r -p "Appuyez sur Entrée pour fermer."
   exit 1
 fi
-node server.js --open
+node scripts/start.js --open

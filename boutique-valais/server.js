@@ -1,5 +1,6 @@
-// Point d'entrée : lance le site sur http://localhost:3000
-// Commande : npm start   (ou : node server.js)
+// Serveur du site : http://localhost:3000
+// Lancement conseillé : npm start (met d'abord le site à jour, voir scripts/start.js).
+// Lancement sans mise à jour : npm run serve
 
 import http from 'node:http';
 import { spawn } from 'node:child_process';
@@ -45,9 +46,9 @@ function openBrowser(url) {
 
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.error(`\n❌ Le port ${config.port} est déjà utilisé.`);
-    console.error('   Le site tourne peut-être déjà dans une autre fenêtre : ouvrez http://localhost:' + config.port);
-    console.error('   Sinon, changez le port dans le fichier src/config.js (par ex. 3001).\n');
+    console.error(`\n❌ Le site est déjà ouvert dans une autre fenêtre (port ${config.port} occupé).`);
+    console.error("   Fermez l'autre fenêtre noire, puis relancez : vous aurez la dernière version.");
+    console.error('   (Ou changez le port dans src/config.js, par ex. 3001.)\n');
   } else {
     console.error(err);
   }
