@@ -1,7 +1,7 @@
 // Service worker : garde l'application en cache pour qu'elle s'ouvre même
 // sans connexion (le chargement d'un CSV et la simulation se font sur
 // l'appareil). Changer VERSION pour publier une mise à jour.
-const VERSION = 'montecarlo-v3';
+const VERSION = 'montecarlo-v4';
 const FILES = ['./', 'index.html', 'worker.js?v=3', 'mc.wasm?v=3', 'manifest.webmanifest',
   'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
