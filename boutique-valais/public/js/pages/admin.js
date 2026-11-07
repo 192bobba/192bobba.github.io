@@ -49,7 +49,7 @@ function renderLogin(view, message = '') {
   view.innerHTML = html`
     <div class="container section">
       <div class="card login-card">
-        <img src="/img/logo.svg" alt="" width="56" height="68">
+        <img src="/img/logo.jpg" alt="" width="64" height="64">
         <h1>Espace admin</h1>
         <p class="muted">Gestion des produits et des commandes.</p>
         <form novalidate>
@@ -112,7 +112,7 @@ async function renderProductList(view) {
             <div class="admin-item-info">
               <strong>${p.name}</strong>
               <span>${categoryById(p.category)?.name || p.category} · ${formatPrice(p.price)}</span>
-              ${p.featured ? html`<span><span class="badge badge-red">Mis en avant</span></span>` : ''}
+              ${p.featured ? html`<span><span class="badge badge-soft">Mis en avant</span></span>` : ''}
             </div>
             <div class="admin-item-actions">
               <a class="btn btn-sm btn-outline" href="#/produit/${p.id}">Voir</a>

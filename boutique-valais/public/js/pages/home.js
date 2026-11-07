@@ -1,8 +1,8 @@
-// Page d'accueil : bannière, catégories, coups de cœur.
+// Page d'accueil : bannière avec le logo, catégories, sélection.
 
 import { api } from '../api.js';
 import { state, isVisible, visibleCategories } from '../state.js';
-import { html, star, starsRow, categoryCard, productCard, formatPrice, setTitle } from '../ui.js';
+import { html, categoryCard, productCard, formatPrice, setTitle, LOGO_IMAGE } from '../ui.js';
 
 export async function renderHome(view) {
   const products = await api.products();
@@ -15,28 +15,31 @@ export async function renderHome(view) {
   view.innerHTML = html`
     <section class="hero">
       <div class="container hero-inner">
-        <div>
-          <p class="hero-kicker">Rouge, blanc et 13 étoiles</p>
-          <h1 class="hero-title">Portez fièrement les couleurs du Valais</h1>
-          <p class="hero-text">T-shirts, sweats, casquettes et spécialités du canton, livrés partout en Suisse.</p>
-          <a class="btn btn-light btn-lg" href="#/boutique">Découvrir la boutique</a>
+        <div class="hero-copy">
+          <p class="eyebrow">Valais · Wallis</p>
+          <h1 class="hero-title">Les couleurs du Valais, au quotidien.</h1>
+          <p class="hero-text">T-shirts, sweats, casquettes et spécialités du canton. Livraison partout en Suisse.</p>
+          <a class="btn btn-primary btn-lg" href="#/boutique">Découvrir la collection</a>
         </div>
-        <img class="hero-badge" src="/img/logo.svg" alt="" width="210" height="256">
+        <div class="hero-media">
+          <img src="${LOGO_IMAGE}" alt="" width="900" height="900">
+        </div>
       </div>
-      <div class="hero-stars" aria-hidden="true">${starsRow(13)}</div>
     </section>
 
     <section class="section container" aria-labelledby="titre-categories">
-      <h2 id="titre-categories">Nos catégories</h2>
+      <div class="section-head">
+        <h2 id="titre-categories">Catégories</h2>
+      </div>
       <div class="category-grid">
         ${categories.map((c) => categoryCard(c, countByCategory(c.id)))}
       </div>
     </section>
 
     ${featured.length ? html`
-      <section class="section container" aria-labelledby="titre-coups-de-coeur">
+      <section class="section container" aria-labelledby="titre-selection">
         <div class="section-head">
-          <h2 id="titre-coups-de-coeur">Coups de cœur</h2>
+          <h2 id="titre-selection">Sélection</h2>
           <a class="link-arrow" href="#/boutique">Tout voir</a>
         </div>
         <div class="product-grid">${featured.map(productCard)}</div>
@@ -44,9 +47,9 @@ export async function renderHome(view) {
 
     <section class="container" aria-label="Nos engagements">
       <ul class="usp">
-        <li>${star()}<span><strong>Livraison offerte</strong> dès ${formatPrice(state.config.shipping.freeFrom)}</span></li>
-        <li>${star()}<span><strong>Expédition</strong> partout en Suisse</span></li>
-        <li>${star()}<span><strong>Designs</strong> 100 % valaisans</span></li>
+        <li><strong>Livraison offerte</strong>dès ${formatPrice(state.config.shipping.freeFrom)} d'achat</li>
+        <li><strong>Expédition</strong>partout en Suisse</li>
+        <li><strong>Designs</strong>100 % valaisans</li>
       </ul>
     </section>`;
 }

@@ -61,12 +61,10 @@ export function setTitle(page) {
 export const PLACEHOLDER_IMAGE = '/img/placeholder.svg';
 export const imageOf = (product) => product.image || PLACEHOLDER_IMAGE;
 
-const STAR_PATH = 'M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z';
-export const star = () => raw(`<svg viewBox="-10 -10 20 20" aria-hidden="true"><path d="${STAR_PATH}"/></svg>`);
-export const starsRow = (count = 13) => Array.from({ length: count }, star);
+export const LOGO_IMAGE = '/img/logo.jpg';
 
 const COLOR_CODES = {
-  rouge: '#D52B1E',
+  rouge: '#D9242B',
   blanc: '#FFFFFF',
   noir: '#1D1B19',
   gris: '#9A958F',
@@ -129,7 +127,6 @@ export function steps(current) {
 
 export const emptyState = ({ title, text, actionHref, actionLabel }) => html`
   <div class="empty-state">
-    <img src="/img/logo.svg" alt="" width="56" height="68">
     <h1>${title}</h1>
     ${text ? html`<p class="muted">${text}</p>` : ''}
     ${actionHref ? html`<a class="btn btn-primary" href="${actionHref}">${actionLabel}</a>` : ''}

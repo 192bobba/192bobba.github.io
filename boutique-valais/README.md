@@ -84,10 +84,10 @@ npm run reset
 | Les produits de démonstration de départ | `data/products.demo.json` |
 | Les catégories (nom, description, image, 18+) | `data/categories.json` |
 | Les images | Envoi depuis l'admin (enregistrées dans `public/uploads/`), ou en ajoutant des fichiers dans `public/img/produits/` |
-| Les couleurs et le style | `public/css/style.css` (les couleurs sont au début du fichier) |
-| Le logo | `public/img/logo.svg` (blason provisoire) |
+| Les couleurs et le style | `public/css/style.css` (les couleurs sont au début du fichier : noir, blanc, gris ; le rouge est réservé au logo et aux produits) |
+| Le logo | `public/img/logo.jpg` (et `favicon.png` / `apple-touch-icon.png` pour l'icône d'onglet) |
 
-Les images actuelles sont des **illustrations provisoires**. Remplacez-les par vos vraies photos
+Les images actuelles sont des **illustrations provisoires** (avec le logo en écusson). Remplacez-les par vos vraies photos
 depuis l'admin, avec le bouton « Choisir une photo… » dans la fiche d'un produit.
 
 ---

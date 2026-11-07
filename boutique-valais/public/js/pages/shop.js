@@ -46,7 +46,7 @@ export async function renderShop(view, [categoryId]) {
       </nav>
 
       ${blocked ? restrictedNotice(category) : html`
-        <p class="muted">${plural(list.length, 'article')}</p>
+        <p class="result-count">${plural(list.length, 'article')}</p>
         ${list.length
           ? html`<div class="product-grid">${list.map(productCard)}</div>`
           : html`<p>Aucun article dans cette catégorie pour le moment.</p>`}`}
