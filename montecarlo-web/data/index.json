@@ -1,5 +1,5 @@
 {
-"updated": 1794091373,
+"updated": 1794091379,
 "tickers": [
 {
 "ticker": "AMD",
@@ -796,6 +796,13 @@
 "ticker": "VUAA.DE",
 "file": "VUAA.DE.json",
 "name": "Vanguard S&P 500 UCITS ETF USD Accumulation",
+"currency": "EUR",
+"type": "ETF"
+},
+{
+"ticker": "SPYI.DE",
+"file": "SPYI.DE.json",
+"name": "State Street SPDR MSCI All Country World Investable Market UCITS ETF",
 "currency": "EUR",
 "type": "ETF"
 }
