@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Boutique 13 Étoiles · Vêtements et merch du Valais</title>
+  <meta name="description" content="Vêtements et merchandising aux couleurs du Valais : t-shirts, sweats, casquettes et spécialités.">
+  <meta name="theme-color" content="#D52B1E">
+  <link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css">
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#/">
+        <img src="/img/logo.svg" alt="" width="30" height="37">
+        <span class="brand-name" data-shop-name>Boutique 13 Étoiles</span>
+      </a>
+      <nav class="main-nav" aria-label="Navigation principale">
+        <a href="#/boutique" data-nav="boutique">Boutique</a>
+        <a href="#/panier" data-nav="panier" class="cart-link">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 13H5L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+          <span class="visually-hidden">Panier</span>
+          <span class="cart-count" data-cart-count hidden>0</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenu" class="site-main" tabindex="-1">
+    <div class="container section"><p class="muted">Chargement…</p></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <p class="footer-brand"><img src="/img/logo.svg" alt="" width="22" height="27"> <span data-shop-name>Boutique 13 Étoiles</span></p>
+        <p class="footer-note">Prototype de démonstration : aucune vente réelle, aucun paiement.</p>
+      </div>
+      <nav class="footer-links" aria-label="Liens utiles">
+        <a href="#/boutique">Boutique</a>
+        <a href="#/panier">Panier</a>
+        <button type="button" class="link-button" data-age-settings>Vérification de l'âge</button>
+        <a href="#/admin">Admin</a>
+      </nav>
+    </div>
+  </footer>
+
+  <div id="toast-root" class="toast-root" role="status" aria-live="polite"></div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+<rect width="400" height="400" fill="#F5F2ED"/>
+<circle cx="200" cy="200" r="158" fill="#ECE6DE"/>
+<ellipse cx="200" cy="356" rx="118" ry="9" fill="#000" opacity="0.07"/>
+<path d="M86 196V262C86 294 314 294 314 262V196Z" fill="#C9CCCF"/>
+<path d="M86 236C86 268 314 268 314 236V262C314 294 86 294 86 262Z" fill="#AEB2B6"/>
+<path d="M86 196V214C86 259 314 259 314 214V196Z" fill="#FFFFFF" stroke="#DCD5CB" stroke-width="3"/>
+<ellipse cx="200" cy="196" rx="114" ry="34" fill="#FFFFFF" stroke="#DCD5CB" stroke-width="3"/>
+<g transform="translate(200 194) scale(1 0.32)"><path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(0 0) scale(7)" fill="#D52B1E"/></g>
+<text x="200" y="262" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="20" letter-spacing="3" fill="#4A4F55">SCHNOUPF</text>
+<text x="200" y="280" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" letter-spacing="2" fill="#4A4F55">MENTHOL</text>
+</svg>

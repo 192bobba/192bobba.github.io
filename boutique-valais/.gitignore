@@ -1,0 +1,10 @@
+node_modules/
+
+# Données créées en local pendant les tests (produits modifiés, commandes)
+data/products.json
+data/orders.json
+data/*.tmp
+
+# Images ajoutées depuis l'admin
+public/uploads/*
+!public/uploads/.gitkeep

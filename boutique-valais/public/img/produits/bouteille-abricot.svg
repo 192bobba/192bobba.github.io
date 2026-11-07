@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+<rect width="400" height="400" fill="#F5F2ED"/>
+<circle cx="200" cy="200" r="158" fill="#ECE6DE"/>
+<ellipse cx="200" cy="356" rx="118" ry="9" fill="#000" opacity="0.07"/>
+<path d="M188 52H212V110C212 128 262 150 262 210V330Q262 348 244 348H156Q138 348 138 330V210C138 150 188 128 188 110Z" fill="#EAF0EC" stroke="#C9D3CD" stroke-width="3"/>
+<path d="M141 196H259V330Q259 345 244 345H156Q141 345 141 330Z" fill="#F2A33A" opacity="0.85"/>
+<rect x="184" y="40" width="32" height="26" rx="4" fill="#D52B1E"/>
+<path d="M156 214V320" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity="0.4"/>
+<rect x="160" y="226" width="80" height="94" rx="6" fill="#FBF8F3"/>
+<g transform="translate(187 240.14) scale(0.26)">
+  <path d="M50 6H8V60C8 88 28 106 50 116Z" fill="#FFFFFF"/><path d="M50 6H92V60C92 88 72 106 50 116Z" fill="#D52B1E"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(23 26) scale(0.62)" fill="#D52B1E"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(38 26) scale(0.62)" fill="#D52B1E"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(62 26) scale(0.62)" fill="#FFFFFF"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(77 26) scale(0.62)" fill="#FFFFFF"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(23 47) scale(0.62)" fill="#D52B1E"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(38 47) scale(0.62)" fill="#D52B1E"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(62 47) scale(0.62)" fill="#FFFFFF"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(77 47) scale(0.62)" fill="#FFFFFF"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(23 68) scale(0.62)" fill="#D52B1E"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(38 68) scale(0.62)" fill="#D52B1E"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(62 68) scale(0.62)" fill="#FFFFFF"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82L-5.878,8.09L-3.633,1.18L-9.511,-3.09L-2.245,-3.09Z" transform="translate(77 68) scale(0.62)" fill="#FFFFFF"/>
+  <path d="M0,-10L-2.245,-3.09L-9.511,-3.09L-3.633,1.18L-5.878,8.09L0,3.82Z" transform="translate(50 91) scale(0.62)" fill="#D52B1E"/>
+  <path d="M0,-10L2.245,-3.09L9.511,-3.09L3.633,1.18L5.878,8.09L0,3.82Z" transform="translate(50 91) scale(0.62)" fill="#FFFFFF"/>
+  <path d="M8 6H92V60C92 88 72 106 50 116C28 106 8 88 8 60Z" fill="none" stroke="#D52B1E" stroke-width="4" stroke-linejoin="round"/>
+</g>
+<text x="200" y="298" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="11" letter-spacing="1" fill="#D52B1E">ABRICOTINE</text>
+<text x="200" y="311" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="7.5" letter-spacing="1" fill="#555">EAU-DE-VIE AOP</text>
+</svg>

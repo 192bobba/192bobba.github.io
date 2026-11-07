@@ -1,0 +1,15 @@
+{
+  "name": "boutique-valais",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Prototype de boutique en ligne aux couleurs du Valais (vêtements et merchandising).",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js --open",
+    "serve": "node server.js",
+    "reset": "node scripts/reset.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
