@@ -57,7 +57,7 @@ export function createFlagScene(container, { image }) {
   flag.position.set(0.04, 1.15, 0);
   rig.add(flag);
 
-  const metal = new MeshStandardMaterial({ color: '#3A3D42', roughness: 0.35, metalness: 0.8 });
+  const metal = new MeshStandardMaterial({ color: '#B8BFC9', roughness: 0.3, metalness: 0.6 }); // mât clair, visible sur fond sombre
   const pole = new Mesh(new CylinderGeometry(0.06, 0.07, 8, 16), metal);
   pole.position.set(0, -0.8, 0);
   rig.add(pole);

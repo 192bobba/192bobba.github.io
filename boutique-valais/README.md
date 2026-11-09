@@ -43,9 +43,18 @@ sur **http://localhost:3000**. Vous n'avez plus jamais besoin de retélécharger
 
 Si vous préférez le terminal, la commande `npm start`, tapée dans le dossier `boutique-valais`, fait exactement la même chose.
 
+### Important : laissez la fenêtre noire ouverte
+
+La fenêtre noire (le terminal) qui s'ouvre au lancement **fait tourner le site** : tant que vous utilisez
+la boutique ou l'admin, laissez-la ouverte. Vous pouvez la réduire dans la barre des tâches.
+
+Si elle est fermée, le site s'arrête. Un bandeau jaune « Le site ne répond plus » apparaît alors dans le navigateur,
+et des messages comme « Le site ne répond plus… » s'affichent, par exemple en se connectant à l'admin. Il suffit de relancer
+le site (double-clic sur le lanceur) : la page se recharge toute seule.
+
 ### Arrêter le site
 
-Fermez la fenêtre noire (le terminal) qui s'est ouverte au lancement, ou appuyez sur **Ctrl + C** dans cette fenêtre.
+Fermez la fenêtre noire, ou appuyez sur **Ctrl + C** dans cette fenêtre.
 
 > Si le site est déjà ouvert, fermez d'abord l'ancienne fenêtre noire avant de relancer, sinon la nouvelle version ne pourra pas démarrer.
 
@@ -95,7 +104,7 @@ Tout se fait dans l'**espace admin**, sans toucher au code. Ouvrez **http://loca
 Conseils pour de belles photos :
 
 - **Format carré** (même largeur que hauteur), produit bien centré : les vignettes de la boutique sont carrées, et les bords d'une photo rectangulaire sont coupés.
-- **Fond clair et uni** (blanc ou gris très clair), comme les illustrations actuelles.
+- **Fond uni** : blanc, gris ou foncé. Un fond sombre se fond particulièrement bien dans le thème du site.
 - Une **photo prise au téléphone convient très bien** : le site la redresse et la réduit automatiquement (environ 1600 pixels, quelques centaines de Ko).
 - Un **PNG détouré** (fond transparent) garde sa transparence.
 
@@ -140,7 +149,7 @@ envoyez vos photos et vos prix, et ils seront intégrés aux produits de départ
 | Les produits de démonstration de départ | `data/products.demo.json` |
 | Les catégories (nom, description, image, 18+) | `data/categories.json` |
 | Les images | Envoi depuis l'admin (enregistrées dans `public/uploads/`), ou en ajoutant des fichiers dans `public/img/produits/` |
-| Les couleurs et le style | `public/css/style.css` (les couleurs sont au début du fichier : noir, blanc, gris ; le rouge est réservé au logo et aux produits) |
+| Les couleurs et le style | `public/css/style.css` (les couleurs du thème sombre sont au début du fichier ; le rouge est réservé au logo et aux produits) |
 | Le logo | `public/img/logo.jpg` (et `favicon.png` / `apple-touch-icon.png` pour l'icône d'onglet) |
 
 Les images actuelles sont des **illustrations provisoires** (avec le logo en écusson). Pour les remplacer

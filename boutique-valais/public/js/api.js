@@ -35,7 +35,8 @@ async function request(method, url, body) {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
-    throw new ApiError('Impossible de joindre le serveur. Vérifiez que le site est bien lancé (npm start).', 0);
+    window.dispatchEvent(new CustomEvent('server-offline'));
+    throw new ApiError('Le site ne répond plus : il a été arrêté (fenêtre noire fermée ?). Relancez-le, puis réessayez.', 0);
   }
 
   const data = await response.json().catch(() => ({}));
@@ -47,6 +48,15 @@ async function request(method, url, body) {
 }
 
 export const api = {
+  // Vérifie si le serveur répond, sans déclencher d'alerte.
+  async ping() {
+    try {
+      const response = await fetch('/api/config', { cache: 'no-store' });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  },
   config: () => request('GET', '/api/config'),
   categories: () => request('GET', '/api/categories'),
   products: () => request('GET', '/api/products'),

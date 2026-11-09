@@ -11,6 +11,17 @@ import { HttpError, sendJson, serveStatic } from './src/http.js';
 
 store.init();
 
+// Titre de la fenêtre noire (Windows) : rappel de ne pas la fermer.
+process.title = `${config.shopName} : laissez cette fenêtre ouverte`;
+
+// Une erreur imprévue ne doit pas arrêter tout le site : on la note et on continue.
+process.on('uncaughtException', (error) => {
+  console.error("\n⚠️  Erreur inattendue (le site continue de fonctionner) :", error);
+});
+process.on('unhandledRejection', (error) => {
+  console.error("\n⚠️  Erreur inattendue (le site continue de fonctionner) :", error);
+});
+
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');
@@ -62,7 +73,11 @@ server.listen(config.port, () => {
   console.log(`   Boutique : ${url}`);
   console.log(`   Admin    : ${url}/#/admin   (mot de passe : voir README.md)`);
   console.log('');
-  console.log('   Pour arrêter le site : appuyez sur Ctrl + C dans cette fenêtre.');
+  console.log('   ⚠️  LAISSEZ CETTE FENÊTRE OUVERTE pendant que vous utilisez le site.');
+  console.log('       La fermer arrête le site (le navigateur affichera « le site ne répond plus »).');
+  console.log('       Vous pouvez la réduire dans la barre des tâches.');
+  console.log('');
+  console.log('   Pour arrêter le site : fermez cette fenêtre, ou appuyez sur Ctrl + C.');
   console.log('');
   if (process.argv.includes('--open')) openBrowser(url);
 });

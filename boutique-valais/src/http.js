@@ -96,6 +96,13 @@ export function serveStatic(req, res, pathname) {
       'Cache-Control': 'no-cache',
     });
     if (req.method === 'HEAD') return res.end();
-    fs.createReadStream(filePath).pipe(res);
+    // Si la lecture échoue (fichier bloqué par un antivirus, supprimé entre-temps…),
+    // on coupe proprement cette réponse sans arrêter le serveur.
+    const stream = fs.createReadStream(filePath);
+    stream.on('error', (error) => {
+      console.error(`Lecture impossible de ${relative} : ${error.code || error.message}`);
+      res.destroy();
+    });
+    stream.pipe(res);
   });
 }

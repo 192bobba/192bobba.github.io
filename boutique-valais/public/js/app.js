@@ -109,7 +109,30 @@ async function renderRoute() {
   if (!hasAnswered() && !path.startsWith('/admin')) askAge({ minimumAge: state.config.minimumAge });
 }
 
+// Si le serveur ne répond plus (fenêtre noire fermée…), un bandeau l'explique,
+// puis la page se recharge toute seule dès que le site est relancé.
+function showOfflineBanner() {
+  if (document.querySelector('.offline-banner')) return;
+  const banner = document.createElement('div');
+  banner.className = 'offline-banner';
+  banner.setAttribute('role', 'alert');
+  banner.innerHTML = `
+    <strong>Le site ne répond plus.</strong>
+    <span>Il a été arrêté sur cet ordinateur : la fenêtre noire a sans doute été fermée.
+      Relancez-le avec <b>lancer-windows.bat</b> ou <b>lancer-mac.command</b>, et laissez la fenêtre noire ouverte.
+      Cette page se rechargera toute seule.</span>`;
+  document.body.prepend(banner);
+  const timer = setInterval(async () => {
+    if (await api.ping()) {
+      clearInterval(timer);
+      location.reload();
+    }
+  }, 3000);
+}
+
 async function start() {
+  window.addEventListener('server-offline', showOfflineBanner);
+
   // Image de secours si une photo produit est introuvable.
   document.addEventListener('error', (event) => {
     const img = event.target;

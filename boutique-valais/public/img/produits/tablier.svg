@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
-<rect width="400" height="400" fill="#F2F2F0"/>
-<ellipse cx="200" cy="358" rx="112" ry="7" fill="#000" opacity="0.05"/>
-<path d="M168 70C168 40 232 40 232 70" fill="none" stroke="#1F1F1F" stroke-width="5"/>
-<path d="M150 170C110 176 84 190 70 204M250 170C290 176 316 190 330 204" stroke="#1F1F1F" stroke-width="5" stroke-linecap="round" fill="none"/>
+<rect width="400" height="400" fill="#141A24"/>
+<ellipse cx="200" cy="358" rx="112" ry="7" fill="#000" opacity="0.4"/>
+<path d="M168 70C168 40 232 40 232 70" fill="none" stroke="#A7AEB8" stroke-width="5"/>
+<path d="M150 170C110 176 84 190 70 204M250 170C290 176 316 190 330 204" stroke="#A7AEB8" stroke-width="5" stroke-linecap="round" fill="none"/>
 <path d="M166 70H234L238 150C268 160 278 168 280 176L272 340Q272 348 264 348H136Q128 348 128 340L120 176C122 168 132 160 162 150Z" fill="#FFFFFF" stroke="#D6D6D2" stroke-width="2" stroke-linejoin="round"/>
 <path d="M150 262H250V306Q250 314 242 314H158Q150 314 150 306Z" fill="none" stroke="#D6D6D2" stroke-width="2"/>
 <rect x="164.16" y="160.16" width="71.68" height="71.68" fill="#FFFFFF" stroke="#000" stroke-opacity="0.12"/>
