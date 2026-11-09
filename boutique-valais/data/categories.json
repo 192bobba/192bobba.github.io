@@ -1,0 +1,44 @@
+[
+  {
+    "id": "t-shirts",
+    "name": "T-shirts",
+    "description": "Coton doux, couleurs fières.",
+    "image": "img/produits/tshirt-rouge.svg",
+    "restricted": false
+  },
+  {
+    "id": "sweats",
+    "name": "Sweats",
+    "description": "Pour les soirées fraîches en altitude.",
+    "image": "img/produits/sweat-rouge.svg",
+    "restricted": false
+  },
+  {
+    "id": "casquettes",
+    "name": "Casquettes",
+    "description": "Rouge et blanc, de la tête aux pieds.",
+    "image": "img/produits/casquette-rouge.svg",
+    "restricted": false
+  },
+  {
+    "id": "autres-vetements",
+    "name": "Autres vêtements",
+    "description": "Bonnets, chaussettes, tabliers…",
+    "image": "img/produits/bonnet.svg",
+    "restricted": false
+  },
+  {
+    "id": "alcool",
+    "name": "Alcool",
+    "description": "Vins et eaux-de-vie du Valais.",
+    "image": "img/produits/bouteille-vin.svg",
+    "restricted": true
+  },
+  {
+    "id": "schnoupf",
+    "name": "Schnoupf",
+    "description": "Tabac à priser, boîtes collector.",
+    "image": "img/produits/schnoupf-rouge.svg",
+    "restricted": true
+  }
+]
