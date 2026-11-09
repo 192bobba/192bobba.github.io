@@ -6,6 +6,7 @@ import { state } from './state.js';
 import { askAge, hasAnswered, onAgeChange } from './age-gate.js';
 import { startRouter, refresh, currentPath } from './router.js';
 import { html, emptyState, PLACEHOLDER_IMAGE } from './ui.js';
+import { revealOnScroll, tiltOnHover, watchHeader, bump } from './effects.js';
 
 import { renderHome } from './pages/home.js';
 import { renderShop } from './pages/shop.js';
@@ -54,8 +55,11 @@ function updateHeader(path) {
   });
 }
 
+let previousCount = null;
 function updateCartCount() {
   const count = cart.count();
+  if (previousCount !== null && count > previousCount) bump(document.querySelector('.cart-link'));
+  previousCount = count;
   document.querySelectorAll('[data-cart-count]').forEach((el) => {
     el.textContent = count > 99 ? '99+' : String(count);
     el.hidden = count === 0;
@@ -66,7 +70,10 @@ function updateCartCount() {
 
 // Chaque navigation dessine la page dans un nouveau conteneur ; si l'utilisateur
 // a déjà changé de page entre-temps, l'ancien rendu est simplement ignoré.
+// Une page peut renvoyer une fonction « mount » appelée une fois affichée
+// (pour lancer une animation 3D par exemple) ; celle-ci renvoie de quoi tout arrêter.
 let renderCount = 0;
+let unmountCurrent = null;
 async function renderRoute() {
   const id = ++renderCount;
   const path = currentPath();
@@ -76,18 +83,27 @@ async function renderRoute() {
   const view = document.createElement('div');
 
   main.setAttribute('aria-busy', 'true');
+  let mount = null;
   try {
-    await page(view, params);
+    mount = await page(view, params);
   } catch (error) {
     console.error(error);
     renderError(view, error);
   }
   if (id !== renderCount) return;
 
+  unmountCurrent?.();
+  view.className = 'view';
   main.replaceChildren(view);
   main.removeAttribute('aria-busy');
   updateHeader(path);
   window.scrollTo(0, 0);
+
+  const cleanups = [revealOnScroll(view), tiltOnHover(view)];
+  if (typeof mount === 'function') {
+    try { cleanups.push(mount()); } catch (error) { console.error(error); }
+  }
+  unmountCurrent = () => cleanups.forEach((fn) => typeof fn === 'function' && fn());
 
   // Première visite : on demande l'âge (sauf dans l'espace admin).
   if (!hasAnswered() && !path.startsWith('/admin')) askAge({ minimumAge: state.config.minimumAge });
@@ -105,6 +121,7 @@ async function start() {
 
   cart.onChange(updateCartCount);
   updateCartCount();
+  watchHeader();
 
   try {
     [state.config, state.categories] = await Promise.all([api.config(), api.categories()]);

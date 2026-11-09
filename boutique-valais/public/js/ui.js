@@ -106,7 +106,7 @@ export const productCard = (product) => html`
 
 export const categoryCard = (category, count) => html`
   <a class="category-card" href="#/boutique/${category.id}">
-    <img src="${category.image || PLACEHOLDER_IMAGE}" alt="" loading="lazy" width="400" height="400">
+    <span class="category-card-media"><img src="${category.image || PLACEHOLDER_IMAGE}" alt="" loading="lazy" width="400" height="400"></span>
     <span class="category-card-body">
       <span class="category-card-name">${category.name} ${category.restricted ? ageBadge() : ''}</span>
       <span class="category-card-meta">${plural(count, 'article')}</span>

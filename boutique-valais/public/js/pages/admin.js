@@ -12,6 +12,42 @@ import { html, raw, imageOf, formatPrice, formatCents, formatDate, plural, setTi
 import { variantLabel } from '../pricing.js';
 
 const MAX_UPLOAD_MB = 3;
+const MAX_IMAGE_SIDE = 1600; // les grandes photos (téléphone) sont réduites à 1600 px
+
+// Prépare une photo avant l'envoi : redressée, réduite et compressée dans le navigateur.
+// Une photo de téléphone de 5 Mo devient ainsi une image d'environ 300 Ko.
+async function prepareImage(file) {
+  let bitmap;
+  try {
+    bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch {
+    try {
+      bitmap = await createImageBitmap(file);
+    } catch {
+      throw new Error("Ce fichier n'est pas une image lisible. Utilisez une photo JPG ou PNG.");
+    }
+  }
+  const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext('2d');
+
+  // Les PNG gardent leur transparence (produit détouré) ; les photos passent en JPG, plus léger.
+  const keepTransparency = file.type === 'image/png' || file.type === 'image/webp';
+  if (!keepTransparency) {
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close?.();
+
+  if (keepTransparency) {
+    const png = canvas.toDataURL('image/png');
+    if (png.length * 0.75 < MAX_UPLOAD_MB * 1024 * 1024 * 0.9) return png;
+  }
+  return canvas.toDataURL('image/jpeg', 0.86);
+}
 
 const SIZE_PRESETS = [
   ['Adulte', 'S, M, L, XL'],
@@ -201,14 +237,15 @@ async function renderProductForm(view, id) {
 
         <div class="field" data-field="image">
           <label for="p-image">Image <span class="optional">(facultatif)</span></label>
-          <div class="image-field">
+          <div class="image-field" data-drop-zone>
             <img class="image-preview" src="${imageOf(product)}" alt="Aperçu de l'image" width="140" height="140">
             <div>
               <span class="btn btn-sm btn-outline file-button">
                 Choisir une photo…
-                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" aria-label="Choisir une photo">
+                <input type="file" accept="image/*" aria-label="Choisir une photo">
               </span>
-              <p class="field-hint" data-upload-status>JPG, PNG ou WEBP, ${MAX_UPLOAD_MB} Mo maximum.</p>
+              <p class="field-hint" data-upload-status>Ou glissez une photo ici. Idéal : photo carrée, produit centré, fond clair.
+                Les grandes photos sont réduites automatiquement.</p>
             </div>
             <input id="p-image" name="image" type="text" value="${product.image}" placeholder="/img/produits/... ou https://...">
           </div>
@@ -245,31 +282,41 @@ async function renderProductForm(view, id) {
     preview.src = imageInput.value.trim() || PLACEHOLDER_IMAGE;
   });
 
-  form.querySelector('input[type="file"]').addEventListener('change', async (event) => {
-    const file = event.target.files[0];
+  const uploadFile = async (file) => {
     if (!file) return;
-    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
-      uploadStatus.textContent = `Image trop lourde (max. ${MAX_UPLOAD_MB} Mo).`;
+    if (!file.type.startsWith('image/')) {
+      uploadStatus.textContent = "Ce fichier n'est pas une image.";
       return;
     }
-    uploadStatus.textContent = 'Envoi de l’image…';
+    uploadStatus.textContent = 'Préparation et envoi de la photo…';
     try {
-      const dataUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(new Error('Lecture du fichier impossible.'));
-        reader.readAsDataURL(file);
-      });
-      const { url } = await api.admin.uploadImage(dataUrl);
+      const { url } = await api.admin.uploadImage(await prepareImage(file));
       imageInput.value = url;
       delete preview.dataset.fallback;
       preview.src = url;
-      uploadStatus.textContent = 'Image envoyée ✓ (pensez à enregistrer le produit)';
+      uploadStatus.textContent = 'Photo ajoutée ✓ Cliquez sur « Enregistrer » pour la garder.';
     } catch (error) {
       uploadStatus.textContent = error.message;
-    } finally {
-      event.target.value = '';
     }
+  };
+
+  const fileInput = form.querySelector('input[type="file"]');
+  fileInput.addEventListener('change', async () => {
+    await uploadFile(fileInput.files[0]);
+    fileInput.value = '';
+  });
+
+  // Glisser-déposer une photo sur la zone image.
+  const dropZone = form.querySelector('[data-drop-zone]');
+  dropZone.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    dropZone.classList.add('is-dragging');
+  });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('is-dragging'));
+  dropZone.addEventListener('drop', (event) => {
+    event.preventDefault();
+    dropZone.classList.remove('is-dragging');
+    uploadFile(event.dataTransfer.files[0]);
   });
 
   form.addEventListener('submit', async (event) => {

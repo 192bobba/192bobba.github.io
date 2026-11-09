@@ -150,6 +150,18 @@ export async function renderProduct(view, [id]) {
     qtyInput.value = qty;
     cart.add({ productId: product.id, size, color: data.get('color') || '', qty });
     showFormError(errorEl, '');
+
+    // Le bouton confirme l'ajout pendant un court instant.
+    const button = form.querySelector('[type="submit"]');
+    clearTimeout(button.resetTimer);
+    button.classList.remove('is-added');
+    void button.offsetWidth;
+    button.classList.add('is-added');
+    button.textContent = 'Ajouté au panier ✓';
+    button.resetTimer = setTimeout(() => {
+      button.classList.remove('is-added');
+      button.textContent = 'Ajouter au panier';
+    }, 1800);
     toast(`${qty} × ${product.name} ajouté au panier`, { actionHref: '#/panier', actionLabel: 'Voir le panier' });
   });
 }

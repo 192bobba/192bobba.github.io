@@ -6,7 +6,9 @@ et les produits et images sont factices.
 
 Ce que le prototype sait faire :
 
-- Accueil avec les catégories et des produits « coups de cœur »
+- Accueil animé : scène 3D du Cervin la nuit, avec les 13 étoiles du drapeau en orbite et la neige qui tombe ; drapeau 3D de l'emblème qui flotte au vent ; bandeau défilant
+- Animations discrètes dans tout le site : apparition au défilement, effet 3D au survol des photos produit, confirmation d'ajout au panier
+- Accueil avec les catégories et une sélection de produits
 - Boutique avec un filtre par catégorie : t-shirts, sweats, casquettes, autres vêtements, alcool, schnoupf
 - Fiche produit avec le choix de la couleur, de la taille et de la quantité
 - Panier avec les quantités modifiables et la livraison offerte dès CHF 80.–
@@ -78,7 +80,58 @@ npm run reset
 
 ---
 
-## 3. Où modifier quoi ?
+## 3. Gérer vos produits (photos, prix, ajouts…)
+
+Tout se fait dans l'**espace admin**, sans toucher au code. Ouvrez **http://localhost:3000/#/admin**
+(ou le lien « Admin » tout en bas du site) et entrez le mot de passe `valais1815`.
+
+### Ajouter la photo d'un produit
+
+1. Dans la liste des produits, cliquez sur **Modifier** à côté du produit.
+2. Dans la rubrique **Image**, cliquez sur **Choisir une photo…**, ou faites glisser la photo depuis votre ordinateur sur la zone image.
+3. L'aperçu se met à jour et le message « Photo ajoutée ✓ » s'affiche.
+4. Cliquez sur **Enregistrer les modifications**, sinon la photo n'est pas gardée.
+
+Conseils pour de belles photos :
+
+- **Format carré** (même largeur que hauteur), produit bien centré : les vignettes de la boutique sont carrées, et les bords d'une photo rectangulaire sont coupés.
+- **Fond clair et uni** (blanc ou gris très clair), comme les illustrations actuelles.
+- Une **photo prise au téléphone convient très bien** : le site la redresse et la réduit automatiquement (environ 1600 pixels, quelques centaines de Ko).
+- Un **PNG détouré** (fond transparent) garde sa transparence.
+
+### Modifier un prix, un nom, une description
+
+1. Cliquez sur **Modifier** à côté du produit.
+2. Changez le champ voulu. Le prix s'écrit en francs, par exemple `34.90` ou `34,90`.
+3. Cliquez sur **Enregistrer les modifications**. Le changement est visible tout de suite dans la boutique.
+
+### Tailles et couleurs
+
+- **Tailles** : séparées par des virgules, par exemple `S, M, L, XL`. Des boutons proposent les listes courantes (Adulte, Enfant, Taille unique…). Laissez vide pour un produit sans taille, comme une bouteille.
+- **Couleurs** : séparées par des virgules, par exemple `Rouge, Blanc, Noir`. Les noms de couleur connus (rouge, blanc, noir, gris, bleu, marine, vert, beige…) affichent une pastille de couleur.
+
+### Ajouter ou supprimer un produit
+
+- **Ajouter** : cliquez sur **+ Ajouter un produit**, remplissez la fiche (nom, catégorie et prix sont obligatoires), puis cliquez sur **Ajouter le produit**.
+- **Supprimer** : cliquez sur **Supprimer** à côté du produit, puis confirmez. Attention, c'est définitif.
+- **Mettre en avant** : cochez « Mettre en avant sur la page d'accueil » pour faire apparaître le produit dans la Sélection.
+
+### Où sont enregistrés vos changements ?
+
+Sur **votre ordinateur**, dans le dossier du site :
+
+- les produits dans `data/products.json` ;
+- les photos dans `public/uploads/`.
+
+Ils sont **conservés lors des mises à jour automatiques**. En revanche, ils ne sont pas envoyés sur GitHub :
+ils n'apparaissent que sur l'ordinateur où vous les avez faits. Pour qu'ils fassent partie du site publié,
+envoyez vos photos et vos prix, et ils seront intégrés aux produits de départ.
+
+> Attention : `npm run reset` efface vos produits et vos photos de test pour revenir aux produits de démonstration.
+
+---
+
+## 4. Où modifier quoi ?
 
 | Je veux changer… | Fichier |
 |---|---|
@@ -90,12 +143,12 @@ npm run reset
 | Les couleurs et le style | `public/css/style.css` (les couleurs sont au début du fichier : noir, blanc, gris ; le rouge est réservé au logo et aux produits) |
 | Le logo | `public/img/logo.jpg` (et `favicon.png` / `apple-touch-icon.png` pour l'icône d'onglet) |
 
-Les images actuelles sont des **illustrations provisoires** (avec le logo en écusson). Remplacez-les par vos vraies photos
-depuis l'admin, avec le bouton « Choisir une photo… » dans la fiche d'un produit.
+Les images actuelles sont des **illustrations provisoires** (avec le logo en écusson). Pour les remplacer
+par vos vraies photos, voir la partie 3 ci-dessus.
 
 ---
 
-## 4. Organisation du code
+## 5. Organisation du code
 
 ```
 boutique-valais/
@@ -115,6 +168,7 @@ boutique-valais/
 │   ├── css/style.css
 │   ├── img/               Logo et illustrations provisoires
 │   ├── uploads/           Photos envoyées depuis l'admin
+│   ├── vendor/three/      Bibliothèque 3D three.js (voir son README)
 │   └── js/
 │       ├── app.js         Démarrage et navigation entre les pages
 │       ├── api.js         Appels au serveur
@@ -122,6 +176,8 @@ boutique-valais/
 │       ├── age-gate.js    Pop-up de vérification de l'âge
 │       ├── pricing.js     Calcul des totaux
 │       ├── ui.js          Composants d'affichage réutilisables
+│       ├── effects.js     Animations d'interface (apparition au défilement, effet 3D au survol)
+│       ├── three/         Scènes 3D de l'accueil (Cervin étoilé, drapeau au vent)
 │       └── pages/         Une page = un fichier (accueil, boutique, produit, panier, commande, confirmation, admin)
 ├── scripts/
 │   ├── start.js           Lancement : mise à jour automatique puis démarrage du serveur
@@ -131,12 +187,15 @@ boutique-valais/
 ```
 
 Choix techniques : Node.js sans aucune dépendance, JavaScript « vanilla » dans le navigateur (aucun
-framework, aucune compilation), et stockage dans des fichiers JSON. Les pages sont accessibles par des
+framework, aucune compilation), et stockage dans des fichiers JSON. La 3D utilise three.js, inclus
+dans le projet : elle fonctionne donc aussi sans internet. Les animations se coupent automatiquement si
+l'appareil a activé le réglage « réduire les animations », et la 3D se met en pause quand elle n'est pas
+à l'écran, pour économiser la batterie. Les pages sont accessibles par des
 adresses du type `#/boutique/sweats` ou `#/produit/hoodie-valais-1815`.
 
 ---
 
-## 5. Avant une vraie mise en ligne (hors périmètre du prototype)
+## 6. Avant une vraie mise en ligne (hors périmètre du prototype)
 
 - **Paiement réel** via un prestataire suisse ou international (TWINT, cartes, facture), par exemple Datatrans, Payrexx, Stripe…
 - **Vraie base de données** à la place des fichiers JSON, et gestion des stocks
