@@ -7,8 +7,8 @@ import config from './config.js';
 import * as store from './store.js';
 import * as auth from './auth.js';
 import { HttpError, readJsonBody, sendJson } from './http.js';
-import { slugify, uniqueId, validateProduct } from './products.js';
-import { buildOrder } from './orders.js';
+import { slugify, uniqueId, validateProduct } from '../public/js/shared/products.js';
+import { buildOrder } from '../public/js/shared/orders.js';
 import { UPLOADS_DIR } from './paths.js';
 
 const IMAGE_TYPES = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif' };
@@ -41,7 +41,7 @@ async function createOrder(req) {
   const order = buildOrder(body, {
     products: store.products.list(),
     categories: store.categories.list(),
-    config,
+    settings: config,
     previousOrders: store.orders.list(),
   });
   store.orders.create(order);
@@ -98,7 +98,7 @@ async function adminUploadImage(req) {
   const fileName = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${extension}`;
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
   fs.writeFileSync(path.join(UPLOADS_DIR, fileName), buffer);
-  return { url: `/uploads/${fileName}` };
+  return { url: `uploads/${fileName}` };
 }
 
 // ---- Table de routage ---------------------------------------------------

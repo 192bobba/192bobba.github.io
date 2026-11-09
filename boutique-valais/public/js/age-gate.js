@@ -38,7 +38,7 @@ export function askAge({ minimumAge = 18 } = {}) {
     backdrop.className = 'modal-backdrop';
     backdrop.innerHTML = `
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="age-title" aria-describedby="age-text">
-        <img class="modal-logo" src="/img/logo.jpg" alt="" width="72" height="72">
+        <img class="modal-logo" src="img/logo.jpg" alt="" width="72" height="72">
         <h2 id="age-title">Bienvenue en Valais !</h2>
         <p id="age-text">Notre boutique propose aussi de l'alcool et du schnoupf, réservés aux personnes de
           <strong>${minimumAge} ans et plus</strong>. Avez-vous ${minimumAge} ans ou plus&nbsp;?</p>

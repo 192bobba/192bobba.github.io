@@ -3,6 +3,7 @@
 // Lancement sans mise à jour : npm run serve
 
 import http from 'node:http';
+import os from 'node:os';
 import { spawn } from 'node:child_process';
 import config from './src/config.js';
 import * as store from './src/store.js';
@@ -40,6 +41,14 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+// Adresses de cet ordinateur sur le réseau local (pour ouvrir le site depuis un iPad ou un téléphone).
+function localNetworkAddresses() {
+  return Object.values(os.networkInterfaces())
+    .flat()
+    .filter((net) => net && net.family === 'IPv4' && !net.internal)
+    .map((net) => net.address);
+}
+
 function openBrowser(url) {
   const commands = {
     darwin: ['open', [url]],
@@ -72,6 +81,12 @@ server.listen(config.port, () => {
   console.log(`✅ ${config.shopName} est en ligne sur votre ordinateur !`);
   console.log(`   Boutique : ${url}`);
   console.log(`   Admin    : ${url}/#/admin   (mot de passe : voir README.md)`);
+  const addresses = localNetworkAddresses();
+  if (addresses.length) {
+    console.log('');
+    console.log('   Sur un iPad ou un téléphone connecté au même Wi-Fi, ouvrez :');
+    addresses.forEach((address) => console.log(`      http://${address}:${config.port}`));
+  }
   console.log('');
   console.log('   ⚠️  LAISSEZ CETTE FENÊTRE OUVERTE pendant que vous utilisez le site.');
   console.log('       La fermer arrête le site (le navigateur affichera « le site ne répond plus »).');

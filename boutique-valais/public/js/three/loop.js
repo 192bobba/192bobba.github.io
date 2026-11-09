@@ -1,6 +1,6 @@
 // Outils communs aux scènes 3D : boucle d'animation économe et nettoyage.
 
-import { WebGLRenderer } from '/vendor/three/three.min.js';
+import { WebGLRenderer } from '../../vendor/three/three.min.js';
 
 export const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

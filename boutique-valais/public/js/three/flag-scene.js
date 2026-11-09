@@ -15,7 +15,7 @@ import {
   SphereGeometry,
   SRGBColorSpace,
   TextureLoader,
-} from '/vendor/three/three.min.js';
+} from '../../vendor/three/three.min.js';
 import { createRenderer, startLoop, disposeScene } from './loop.js';
 
 const FLAG_SIZE = 4;

@@ -1,4 +1,5 @@
 // Calcule l'âge à partir d'une date « AAAA-MM-JJ ». Renvoie null si la date est invalide.
+// Module partagé : utilisé par le serveur, le formulaire de commande et la démo en ligne.
 export function ageFromBirthDate(value, today = new Date()) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || ''));
   if (!match) return null;

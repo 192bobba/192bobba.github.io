@@ -4,7 +4,7 @@ import { api } from '../api.js';
 import { cart } from '../cart.js';
 import { state, isRestricted } from '../state.js';
 import { navigate } from '../router.js';
-import { ageFromBirthDate } from '../age.js';
+import { ageFromBirthDate } from '../shared/age.js';
 import { resolveCart, computeTotals, variantLabel } from '../pricing.js';
 import { html, raw, emptyState, formatCents, setTitle, steps, showFieldErrors, showFormError, clearErrorsOnInput } from '../ui.js';
 import { summaryRows } from './cart.js';

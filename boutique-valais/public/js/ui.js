@@ -58,10 +58,10 @@ export function setTitle(page) {
 
 // ---- Petits composants ---------------------------------------------------
 
-export const PLACEHOLDER_IMAGE = '/img/placeholder.svg';
+export const PLACEHOLDER_IMAGE = 'img/placeholder.svg';
 export const imageOf = (product) => product.image || PLACEHOLDER_IMAGE;
 
-export const LOGO_IMAGE = '/img/logo.jpg';
+export const LOGO_IMAGE = 'img/logo.jpg';
 
 const COLOR_CODES = {
   rouge: '#D9242B',

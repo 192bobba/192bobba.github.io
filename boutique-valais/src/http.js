@@ -4,13 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { PUBLIC_DIR } from './paths.js';
 
-export class HttpError extends Error {
-  constructor(status, message, details) {
-    super(message);
-    this.status = status;
-    this.details = details;
-  }
-}
+// Même classe d'erreur que le code partagé avec le navigateur (public/js/shared/).
+export { AppError as HttpError } from '../public/js/shared/errors.js';
 
 const SECURITY_HEADERS = { 'X-Content-Type-Options': 'nosniff' };
 

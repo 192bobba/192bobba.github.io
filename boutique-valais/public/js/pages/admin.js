@@ -16,7 +16,7 @@ const MAX_IMAGE_SIDE = 1600; // les grandes photos (téléphone) sont réduites 
 
 // Prépare une photo avant l'envoi : redressée, réduite et compressée dans le navigateur.
 // Une photo de téléphone de 5 Mo devient ainsi une image d'environ 300 Ko.
-async function prepareImage(file) {
+async function prepareImage(file, maxSide = MAX_IMAGE_SIDE) {
   let bitmap;
   try {
     bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
@@ -27,7 +27,7 @@ async function prepareImage(file) {
       throw new Error("Ce fichier n'est pas une image lisible. Utilisez une photo JPG ou PNG.");
     }
   }
-  const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(bitmap.width, bitmap.height));
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(bitmap.width * scale);
   canvas.height = Math.round(bitmap.height * scale);
@@ -57,8 +57,11 @@ const SIZE_PRESETS = [
   ['Aucune', ''],
 ];
 
+let demoMode = false; // version en ligne sans serveur (voir demo-store.js)
+
 export async function renderAdmin(view, [subPath = '']) {
   setTitle('Admin');
+  demoMode = await api.isDemo();
   if (!api.admin.isLoggedIn()) return renderLogin(view);
 
   try {
@@ -71,6 +74,13 @@ export async function renderAdmin(view, [subPath = '']) {
     if (error.status === 401) return renderLogin(view, error.message);
     throw error;
   }
+
+  view.querySelector('[data-reset-demo]')?.addEventListener('click', async () => {
+    if (!confirm('Remettre la démo dans son état de départ sur cet appareil ?\nVos produits modifiés, photos et commandes de test seront effacés.')) return;
+    await api.admin.resetDemo();
+    toast('Démo réinitialisée.');
+    refresh();
+  });
 
   view.querySelector('[data-logout]')?.addEventListener('click', async () => {
     await api.admin.logout();
@@ -85,7 +95,7 @@ function renderLogin(view, message = '') {
   view.innerHTML = html`
     <div class="container section">
       <div class="card login-card">
-        <img src="/img/logo.jpg" alt="" width="64" height="64">
+        <img src="img/logo.jpg" alt="" width="64" height="64">
         <h1>Espace admin</h1>
         <p class="muted">Gestion des produits et des commandes.</p>
         <form novalidate>
@@ -127,7 +137,13 @@ const adminHeader = (active) => html`
   <nav class="admin-tabs" aria-label="Sections admin">
     <a href="#/admin" class="${active === 'produits' ? 'is-active' : ''}">Produits</a>
     <a href="#/admin/commandes" class="${active === 'commandes' ? 'is-active' : ''}">Commandes</a>
-  </nav>`;
+  </nav>
+  ${demoMode ? html`
+    <div class="notice">
+      <p><strong>Version de démonstration en ligne.</strong> Vos modifications, photos et commandes de test sont
+        enregistrées <strong>uniquement dans ce navigateur</strong>, sur cet appareil : personne d'autre ne les voit.</p>
+      <button type="button" class="link-button" data-reset-demo>Réinitialiser la démo</button>
+    </div>` : ''}`;
 
 // ---- Liste des produits ---------------------------------------------------------
 
@@ -236,7 +252,7 @@ async function renderProductForm(view, id) {
         ${textField({ name: 'colors', label: 'Couleurs', value: product.colors.join(', '), hint: 'Séparées par des virgules, par ex. : Rouge, Blanc, Noir. Laissez vide si aucune.', attrs: 'placeholder="Rouge, Blanc"' })}
 
         <div class="field" data-field="image">
-          <label for="p-image">Image <span class="optional">(facultatif)</span></label>
+          <label for="p-image-path">Image <span class="optional">(facultatif)</span></label>
           <div class="image-field" data-drop-zone>
             <img class="image-preview" src="${imageOf(product)}" alt="Aperçu de l'image" width="140" height="140">
             <div>
@@ -244,10 +260,13 @@ async function renderProductForm(view, id) {
                 Choisir une photo…
                 <input type="file" accept="image/*" aria-label="Choisir une photo">
               </span>
-              <p class="field-hint" data-upload-status>Ou glissez une photo ici. Idéal : photo carrée, produit centré, fond clair.
+              <p class="field-hint" data-upload-status>Ou glissez une photo ici. Idéal : photo carrée, produit centré, fond uni.
                 Les grandes photos sont réduites automatiquement.</p>
             </div>
-            <input id="p-image" name="image" type="text" value="${product.image}" placeholder="/img/produits/... ou https://...">
+            <input name="image" type="hidden" value="${product.image}">
+            <input id="p-image-path" type="text" data-image-path
+              value="${product.image.startsWith('data:') ? '' : product.image}"
+              placeholder="Ou l'adresse d'une image : img/produits/… ou https://…">
           </div>
           <p class="field-error" hidden></p>
         </div>
@@ -268,7 +287,8 @@ async function renderProductForm(view, id) {
   const form = view.querySelector('form');
   const formError = form.querySelector('.form-error');
   const preview = form.querySelector('.image-preview');
-  const imageInput = form.elements.image;
+  const imageInput = form.elements.image; // valeur réellement enregistrée (champ caché)
+  const imagePathInput = form.querySelector('[data-image-path]');
   const uploadStatus = form.querySelector('[data-upload-status]');
   clearErrorsOnInput(form);
 
@@ -277,7 +297,8 @@ async function renderProductForm(view, id) {
     if (button) form.elements.sizes.value = button.dataset.sizes;
   });
 
-  imageInput.addEventListener('change', () => {
+  imagePathInput.addEventListener('change', () => {
+    imageInput.value = imagePathInput.value.trim();
     delete preview.dataset.fallback;
     preview.src = imageInput.value.trim() || PLACEHOLDER_IMAGE;
   });
@@ -290,8 +311,10 @@ async function renderProductForm(view, id) {
     }
     uploadStatus.textContent = 'Préparation et envoi de la photo…';
     try {
-      const { url } = await api.admin.uploadImage(await prepareImage(file));
+      // En démo en ligne, la photo est gardée dans le navigateur : on la réduit un peu plus.
+      const { url } = await api.admin.uploadImage(await prepareImage(file, demoMode ? 1200 : MAX_IMAGE_SIDE));
       imageInput.value = url;
+      imagePathInput.value = url.startsWith('data:') ? '' : url;
       delete preview.dataset.fallback;
       preview.src = url;
       uploadStatus.textContent = 'Photo ajoutée ✓ Cliquez sur « Enregistrer » pour la garder.';

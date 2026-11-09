@@ -154,6 +154,10 @@ async function start() {
   }
 
   document.querySelectorAll('[data-shop-name]').forEach((el) => { el.textContent = state.config.shopName; });
+  if (await api.isDemo()) {
+    document.querySelector('.footer-note').textContent =
+      'Version de démonstration en ligne : aucune vente réelle. Les modifications faites dans l’admin restent sur cet appareil.';
+  }
 
   const ask = () => askAge({ minimumAge: state.config.minimumAge });
   document.querySelector('[data-age-settings]').addEventListener('click', ask);

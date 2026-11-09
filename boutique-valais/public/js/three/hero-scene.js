@@ -23,7 +23,7 @@ import {
   Shape,
   SRGBColorSpace,
   Vector3,
-} from '/vendor/three/three.min.js';
+} from '../../vendor/three/three.min.js';
 import { createRenderer, startLoop, disposeScene, trackPointer, easeOutCubic, easeOutBack } from './loop.js';
 
 const RED = '#D9242B';

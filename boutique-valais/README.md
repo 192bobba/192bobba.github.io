@@ -71,7 +71,37 @@ Fermez la fenêtre noire, ou appuyez sur **Ctrl + C** dans cette fenêtre.
 
 ---
 
-## 2. Tester la boutique
+## 2. Ouvrir le site sur un iPad ou un téléphone
+
+### Version en ligne (depuis n'importe où)
+
+Le site est publié sur GitHub Pages : **https://192bobba.github.io/boutique-valais/**
+
+Rien à installer ni à lancer : ouvrez simplement cette adresse dans Safari (sur l'iPad, « Partager → Sur
+l'écran d'accueil » ajoute même une icône comme une application).
+
+Comme GitHub Pages ne fait pas tourner de serveur, cette version fonctionne en **mode démonstration** :
+
+- tout marche (boutique, panier, commande, admin avec le même mot de passe) ;
+- les produits modifiés, les photos et les commandes de test sont enregistrés **dans le navigateur de l'appareil
+  utilisé** : ce que vous changez sur l'iPad n'apparaît ni sur l'ordinateur, ni chez les autres visiteurs ;
+- un bouton « Réinitialiser la démo » dans l'admin remet tout dans l'état de départ.
+
+Elle se met à jour toute seule à chaque nouvelle publication sur la branche `main` du dépôt (une à deux minutes
+après la publication).
+
+### Version de l'ordinateur (même Wi-Fi)
+
+Lancez le site sur l'ordinateur comme d'habitude. La fenêtre noire affiche une adresse du type
+`http://192.168.1.23:3000` : tapez-la dans Safari sur l'iPad, connecté au **même Wi-Fi**.
+Vous utilisez alors exactement les mêmes produits et commandes que sur l'ordinateur.
+
+> Sous Windows, au premier lancement, une fenêtre du pare-feu peut demander d'autoriser Node.js :
+> cochez **Réseaux privés** et validez, sinon l'iPad ne pourra pas se connecter.
+
+---
+
+## 3. Tester la boutique
 
 | Quoi | Comment |
 |---|---|
@@ -89,7 +119,7 @@ npm run reset
 
 ---
 
-## 3. Gérer vos produits (photos, prix, ajouts…)
+## 4. Gérer vos produits (photos, prix, ajouts…)
 
 Tout se fait dans l'**espace admin**, sans toucher au code. Ouvrez **http://localhost:3000/#/admin**
 (ou le lien « Admin » tout en bas du site) et entrez le mot de passe `valais1815`.
@@ -140,11 +170,12 @@ envoyez vos photos et vos prix, et ils seront intégrés aux produits de départ
 
 ---
 
-## 4. Où modifier quoi ?
+## 5. Où modifier quoi ?
 
 | Je veux changer… | Fichier |
 |---|---|
-| Nom de la boutique, mot de passe admin, frais de port, âge minimum, port | `src/config.js` |
+| Nom de la boutique, frais de port, âge minimum | `data/settings.json` (utilisé aussi par la version en ligne) |
+| Mot de passe admin, port | `src/config.js` (version en ligne : `public/js/demo-store.js`) |
 | Les produits | Depuis l'**espace admin**, ou dans `data/products.json` (créé au premier lancement) |
 | Les produits de démonstration de départ | `data/products.demo.json` |
 | Les catégories (nom, description, image, 18+) | `data/categories.json` |
@@ -153,25 +184,23 @@ envoyez vos photos et vos prix, et ils seront intégrés aux produits de départ
 | Le logo | `public/img/logo.jpg` (et `favicon.png` / `apple-touch-icon.png` pour l'icône d'onglet) |
 
 Les images actuelles sont des **illustrations provisoires** (avec le logo en écusson). Pour les remplacer
-par vos vraies photos, voir la partie 3 ci-dessus.
+par vos vraies photos, voir la partie 4 ci-dessus.
 
 ---
 
-## 5. Organisation du code
+## 6. Organisation du code
 
 ```
 boutique-valais/
+├── index.html             Page d'entrée de la version en ligne (redirige vers public/)
 ├── server.js              Serveur web du site
 ├── src/                   Code du serveur
-│   ├── config.js          Réglages (à modifier librement)
+│   ├── config.js          Réglages du serveur (mot de passe, port)
 │   ├── api.js             Adresses de l'API (/api/products, /api/orders, /api/admin/...)
 │   ├── store.js           Lecture / écriture des fichiers JSON (seul fichier à changer pour passer à une base de données)
-│   ├── orders.js          Création d'une commande : prix et âge revérifiés côté serveur
-│   ├── products.js        Validation des produits saisis dans l'admin
 │   ├── auth.js            Protection basique de l'admin (mot de passe + session)
-│   ├── age.js             Calcul de l'âge
 │   └── http.js            Utilitaires HTTP et fichiers statiques
-├── data/                  Données (catégories, produits, commandes)
+├── data/                  Données : réglages (settings.json), catégories, produits, commandes
 ├── public/                Tout ce que voit le navigateur
 │   ├── index.html
 │   ├── css/style.css
@@ -180,7 +209,9 @@ boutique-valais/
 │   ├── vendor/three/      Bibliothèque 3D three.js (voir son README)
 │   └── js/
 │       ├── app.js         Démarrage et navigation entre les pages
-│       ├── api.js         Appels au serveur
+│       ├── api.js         Accès aux données : serveur, ou démo en ligne si pas de serveur
+│       ├── demo-store.js  Version en ligne sans serveur (données gardées dans le navigateur)
+│       ├── shared/        Règles communes au serveur et à la démo : commandes, âge, validation des produits
 │       ├── cart.js        Panier (gardé dans le navigateur)
 │       ├── age-gate.js    Pop-up de vérification de l'âge
 │       ├── pricing.js     Calcul des totaux
@@ -204,7 +235,7 @@ adresses du type `#/boutique/sweats` ou `#/produit/hoodie-valais-1815`.
 
 ---
 
-## 6. Avant une vraie mise en ligne (hors périmètre du prototype)
+## 7. Avant une vraie mise en ligne (hors périmètre du prototype)
 
 - **Paiement réel** via un prestataire suisse ou international (TWINT, cartes, facture), par exemple Datatrans, Payrexx, Stripe…
 - **Vraie base de données** à la place des fichiers JSON, et gestion des stocks
@@ -212,4 +243,4 @@ adresses du type `#/boutique/sweats` ou `#/produit/hoodie-valais-1815`.
 - **E-mails** de confirmation de commande
 - **Vérification de l'âge** conforme et **règles légales** à vérifier : âges minimum pour le vin, la bière, les spiritueux et le tabac, et restrictions de publicité
 - **Pages légales** : CGV, mentions légales, protection des données (nLPD)
-- **Hébergement** : ce dossier a besoin d'un serveur Node.js. Il ne fonctionne pas tel quel sur GitHub Pages, qui n'héberge que des pages statiques.
+- **Hébergement** : la version sur GitHub Pages est une démonstration (données gardées dans chaque navigateur). Une vraie boutique a besoin d'un hébergement avec serveur et base de données partagée.

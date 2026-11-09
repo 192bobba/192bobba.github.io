@@ -1,6 +1,7 @@
 // Validation des produits envoyés depuis l'espace admin.
+// Module partagé : utilisé par le serveur et par la démo en ligne.
 
-import { HttpError } from './http.js';
+import { AppError } from './errors.js';
 
 const text = (value, max) => String(value ?? '').trim().slice(0, max);
 
@@ -38,7 +39,12 @@ export function uniqueId(base, existingIds) {
   return id;
 }
 
-export function validateProduct(input, categories) {
+// Image acceptée : chemin du site (img/…, uploads/…), adresse https://,
+// ou (démo en ligne uniquement) photo enregistrée dans le navigateur (data:image/…).
+const IMAGE_PATH = /^(\/?[\w\-./]+|https:\/\/\S+)$/;
+const IMAGE_DATA = /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/;
+
+export function validateProduct(input, categories, { allowImageData = false } = {}) {
   const errors = {};
 
   const name = text(input.name, 80);
@@ -51,13 +57,15 @@ export function validateProduct(input, categories) {
   if (!Number.isFinite(price) || price <= 0) errors.price = 'Indiquez un prix supérieur à 0.';
   else if (price > 10000) errors.price = 'Le prix semble trop élevé (max. CHF 10 000).';
 
-  const image = text(input.image, 300);
-  if (image && !/^(\/[\w\-./]+|https:\/\/\S+)$/.test(image)) {
-    errors.image = "L'image doit être un chemin local (/img/...) ou une adresse https://";
+  const rawImage = String(input.image ?? '').trim();
+  const isImageData = allowImageData && IMAGE_DATA.test(rawImage);
+  const image = isImageData ? rawImage : rawImage.slice(0, 300);
+  if (image && !isImageData && !IMAGE_PATH.test(image)) {
+    errors.image = "L'image doit être un chemin du site (img/...) ou une adresse https://";
   }
 
   if (Object.keys(errors).length) {
-    throw new HttpError(422, 'Certains champs sont à corriger.', errors);
+    throw new AppError(422, 'Certains champs sont à corriger.', errors);
   }
 
   return {

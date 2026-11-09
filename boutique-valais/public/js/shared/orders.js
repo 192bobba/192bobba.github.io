@@ -1,7 +1,8 @@
-// Création d'une commande simulée : on revérifie tout côté serveur
-// (prix, variantes, âge) sans faire confiance au navigateur.
+// Création d'une commande simulée : on revérifie tout (prix, variantes, âge)
+// sans faire confiance au formulaire.
+// Module partagé : utilisé par le serveur et par la démo en ligne.
 
-import { HttpError } from './http.js';
+import { AppError } from './errors.js';
 import { ageFromBirthDate } from './age.js';
 
 export const PAYMENT_METHODS = {
@@ -18,7 +19,7 @@ function pickOption(options, chosen, label, productName) {
   if (!options?.length) return '';
   const value = text(chosen, 30);
   if (!options.includes(value)) {
-    throw new HttpError(400, `Choisissez une ${label} valide pour « ${productName} ».`);
+    throw new AppError(400, `Choisissez une ${label} valide pour « ${productName} ».`);
   }
   return value;
 }
@@ -31,7 +32,8 @@ function nextOrderNumber(previousOrders) {
   return `VS-${last + 1}`;
 }
 
-export function buildOrder(input, { products, categories, config, previousOrders }) {
+// settings : { minimumAge, currency, shipping: { cost, freeFrom } }
+export function buildOrder(input, { products, categories, settings, previousOrders }) {
   const errors = {};
   const raw = input?.customer ?? {};
 
@@ -52,19 +54,19 @@ export function buildOrder(input, { products, categories, config, previousOrders
   if (!customer.city) errors.city = 'Indiquez votre localité.';
 
   const items = Array.isArray(input?.items) ? input.items : [];
-  if (!items.length) throw new HttpError(400, 'Votre panier est vide.');
-  if (items.length > 50) throw new HttpError(400, 'Trop d’articles différents dans le panier.');
+  if (!items.length) throw new AppError(400, 'Votre panier est vide.');
+  if (items.length > 50) throw new AppError(400, 'Trop d’articles différents dans le panier.');
 
   const restrictedCategories = new Set(categories.filter((c) => c.restricted).map((c) => c.id));
 
   const lines = items.map((item) => {
     const product = products.find((p) => p.id === item?.productId);
     if (!product) {
-      throw new HttpError(409, "Un article de votre panier n'est plus disponible. Retournez au panier pour le mettre à jour.");
+      throw new AppError(409, "Un article de votre panier n'est plus disponible. Retournez au panier pour le mettre à jour.");
     }
     const qty = Number(item.qty);
     if (!Number.isInteger(qty) || qty < 1 || qty > 99) {
-      throw new HttpError(400, `Quantité invalide pour « ${product.name} ».`);
+      throw new AppError(400, `Quantité invalide pour « ${product.name} ».`);
     }
     const unitCents = toCents(product.price);
     return {
@@ -86,8 +88,8 @@ export function buildOrder(input, { products, categories, config, previousOrders
     const age = ageFromBirthDate(birthDate);
     if (age === null) {
       errors.birthDate = 'Indiquez votre date de naissance.';
-    } else if (age < config.minimumAge) {
-      errors.birthDate = `Vous devez avoir au moins ${config.minimumAge} ans pour commander de l'alcool ou du schnoupf.`;
+    } else if (age < settings.minimumAge) {
+      errors.birthDate = `Vous devez avoir au moins ${settings.minimumAge} ans pour commander de l'alcool ou du schnoupf.`;
     }
   }
 
@@ -95,11 +97,11 @@ export function buildOrder(input, { products, categories, config, previousOrders
   if (!payment) errors.payment = 'Choisissez un moyen de paiement.';
 
   if (Object.keys(errors).length) {
-    throw new HttpError(422, 'Merci de corriger les champs indiqués.', errors);
+    throw new AppError(422, 'Merci de corriger les champs indiqués.', errors);
   }
 
   const subtotalCents = lines.reduce((sum, line) => sum + line.lineCents, 0);
-  const shippingCents = subtotalCents >= toCents(config.shipping.freeFrom) ? 0 : toCents(config.shipping.cost);
+  const shippingCents = subtotalCents >= toCents(settings.shipping.freeFrom) ? 0 : toCents(settings.shipping.cost);
 
   return {
     number: nextOrderNumber(previousOrders),
@@ -110,7 +112,7 @@ export function buildOrder(input, { products, categories, config, previousOrders
     containsRestricted,
     payment,
     paymentLabel: PAYMENT_METHODS[payment],
-    currency: config.currency,
+    currency: settings.currency,
     subtotalCents,
     shippingCents,
     totalCents: subtotalCents + shippingCents,
