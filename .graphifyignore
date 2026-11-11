@@ -7,3 +7,6 @@ montecarlo-web/data/
 *.svg
 .claude/
 CLAUDE.md
+
+# Version 3D (copie du projet)
+boutique-valais-3d/public/vendor/

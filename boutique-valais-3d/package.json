@@ -1,0 +1,21 @@
+{
+  "name": "boutique-valais-3d",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Boutique valaisanne, version 3D immersive autour du Cervin (copie de boutique-valais).",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/start.js --open",
+    "serve": "node server.js",
+    "update": "node scripts/update.js",
+    "reset": "node scripts/reset.js"
+  },
+  "updateSource": {
+    "repository": "192bobba/192bobba.github.io",
+    "branch": "claude/ecommerce-valais-prototype-9hvr0l",
+    "folder": "boutique-valais-3d"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
