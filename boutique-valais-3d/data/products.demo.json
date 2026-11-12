@@ -1,0 +1,167 @@
+[
+  {
+    "id": "t-shirt-13-etoiles",
+    "name": "T-shirt 13 Étoiles",
+    "category": "t-shirts",
+    "price": 34.9,
+    "description": "Le classique : un t-shirt rouge vif orné des 13 étoiles valaisannes. Coton bio 180 g/m², coupe unisexe.",
+    "image": "img/produits/tshirt-rouge.svg",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "colors": ["Rouge", "Blanc"],
+    "featured": true
+  },
+  {
+    "id": "t-shirt-drapeau",
+    "name": "T-shirt Drapeau valaisan",
+    "category": "t-shirts",
+    "price": 32.9,
+    "description": "T-shirt blanc avec le blason rouge et blanc sur le cœur. Sobre, efficace, valaisan.",
+    "image": "img/produits/tshirt-blanc.svg",
+    "sizes": ["S", "M", "L", "XL"],
+    "colors": ["Blanc", "Gris chiné"],
+    "featured": false
+  },
+  {
+    "id": "t-shirt-enfant-petit-valaisan",
+    "name": "T-shirt enfant « Petit Valaisan »",
+    "category": "t-shirts",
+    "price": 24.9,
+    "description": "Pour les petits Valaisans qui portent déjà fièrement leurs couleurs. Coton doux, lavable à 40 °C.",
+    "image": "img/produits/tshirt-rouge.svg",
+    "sizes": ["4 ans", "6 ans", "8 ans", "10 ans", "12 ans"],
+    "colors": ["Rouge"],
+    "featured": false
+  },
+  {
+    "id": "hoodie-valais-1815",
+    "name": "Hoodie Valais 1815",
+    "category": "sweats",
+    "price": 69.9,
+    "description": "Sweat à capuche épais, poche kangourou, avec l'année d'entrée du Valais dans la Confédération.",
+    "image": "img/produits/sweat-rouge.svg",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "colors": ["Rouge", "Noir"],
+    "featured": true
+  },
+  {
+    "id": "sweat-col-rond-etoile",
+    "name": "Sweat col rond Étoilé",
+    "category": "sweats",
+    "price": 59.9,
+    "description": "Sweat col rond gris chiné, blason brodé. Idéal pour l'après-ski.",
+    "image": "img/produits/sweat-gris.svg",
+    "sizes": ["S", "M", "L", "XL"],
+    "colors": ["Gris chiné", "Blanc"],
+    "featured": false
+  },
+  {
+    "id": "casquette-13-etoiles",
+    "name": "Casquette 13 Étoiles",
+    "category": "casquettes",
+    "price": 29.9,
+    "description": "Casquette 6 pans rouge avec blason brodé. Fermeture réglable à l'arrière.",
+    "image": "img/produits/casquette-rouge.svg",
+    "sizes": ["Taille unique"],
+    "colors": ["Rouge", "Noir"],
+    "featured": true
+  },
+  {
+    "id": "casquette-trucker-valais",
+    "name": "Casquette trucker Valais",
+    "category": "casquettes",
+    "price": 27.9,
+    "description": "Façade blanche, visière rouge et filet respirant. Parfaite pour les chaudes journées à Sion.",
+    "image": "img/produits/casquette-blanche.svg",
+    "sizes": ["Taille unique"],
+    "colors": ["Blanc / Rouge"],
+    "featured": false
+  },
+  {
+    "id": "bonnet-pompon-valais",
+    "name": "Bonnet à pompon Valais",
+    "category": "autres-vetements",
+    "price": 24.9,
+    "description": "Bonnet tricoté bien chaud, bande étoilée et gros pompon blanc.",
+    "image": "img/produits/bonnet.svg",
+    "sizes": ["Taille unique"],
+    "colors": ["Rouge", "Blanc"],
+    "featured": true
+  },
+  {
+    "id": "chaussettes-13-etoiles",
+    "name": "Chaussettes 13 Étoiles",
+    "category": "autres-vetements",
+    "price": 14.9,
+    "description": "Chaussettes rouges à étoiles blanches. Coton peigné, renfort talon et pointe.",
+    "image": "img/produits/chaussettes.svg",
+    "sizes": ["36-39", "40-43", "44-47"],
+    "colors": [],
+    "featured": false
+  },
+  {
+    "id": "tablier-raclette",
+    "name": "Tablier à raclette",
+    "category": "autres-vetements",
+    "price": 29.9,
+    "description": "Le tablier officiel du racleur. Toile épaisse, poche ventrale, blason imprimé.",
+    "image": "img/produits/tablier.svg",
+    "sizes": [],
+    "colors": ["Blanc", "Rouge"],
+    "featured": false
+  },
+  {
+    "id": "fendant-du-valais-75cl",
+    "name": "Fendant du Valais AOC 75 cl",
+    "category": "alcool",
+    "price": 18.5,
+    "description": "Chasselas du Valais, sec et fruité. Parfait avec une raclette ou une fondue. 12 % vol.",
+    "image": "img/produits/bouteille-vin.svg",
+    "sizes": [],
+    "colors": [],
+    "featured": true
+  },
+  {
+    "id": "abricotine-50cl",
+    "name": "Abricotine AOP 50 cl",
+    "category": "alcool",
+    "price": 39,
+    "description": "Eau-de-vie d'abricots du Valais, notes intenses de fruit mûr. 40 % vol.",
+    "image": "img/produits/bouteille-abricot.svg",
+    "sizes": [],
+    "colors": [],
+    "featured": false
+  },
+  {
+    "id": "eau-de-vie-poire-williams-70cl",
+    "name": "Eau-de-vie de poire Williams 70 cl",
+    "category": "alcool",
+    "price": 44,
+    "description": "Distillée à partir de poires Williams valaisannes. Servir frais en digestif. 40 % vol.",
+    "image": "img/produits/bouteille-poire.svg",
+    "sizes": [],
+    "colors": [],
+    "featured": false
+  },
+  {
+    "id": "schnoupf-original-13-etoiles",
+    "name": "Schnoupf Original 13 Étoiles 10 g",
+    "category": "schnoupf",
+    "price": 6.5,
+    "description": "Tabac à priser au goût classique, dans une boîte métal collector aux couleurs du Valais.",
+    "image": "img/produits/schnoupf-rouge.svg",
+    "sizes": [],
+    "colors": [],
+    "featured": false
+  },
+  {
+    "id": "schnoupf-menthol-10g",
+    "name": "Schnoupf Menthol 10 g",
+    "category": "schnoupf",
+    "price": 6.5,
+    "description": "Tabac à priser mentholé, frais et puissant. Boîte blanche à étoile rouge.",
+    "image": "img/produits/schnoupf-blanc.svg",
+    "sizes": [],
+    "colors": [],
+    "featured": false
+  }
+]

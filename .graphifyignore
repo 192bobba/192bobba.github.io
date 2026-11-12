@@ -1,0 +1,12 @@
+# Exclus du graphe Graphify (bruit) :
+# code tiers minifié, données de cours de bourse, images, fichiers générés par graphify
+boutique-valais/public/vendor/
+montecarlo-web/data/
+*.png
+*.jpg
+*.svg
+.claude/
+CLAUDE.md
+
+# Version 3D (copie du projet)
+boutique-valais-3d/public/vendor/

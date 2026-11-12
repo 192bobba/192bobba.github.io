@@ -1,0 +1,9 @@
+{
+  "shopName": "Boutique 13 Étoiles",
+  "minimumAge": 18,
+  "currency": "CHF",
+  "shipping": {
+    "cost": 7,
+    "freeFrom": 80
+  }
+}
