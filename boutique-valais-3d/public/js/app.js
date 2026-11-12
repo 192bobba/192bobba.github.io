@@ -5,8 +5,9 @@ import { cart } from './cart.js';
 import { state } from './state.js';
 import { askAge, hasAnswered, onAgeChange } from './age-gate.js';
 import { startRouter, refresh, currentPath } from './router.js';
-import { html, emptyState, PLACEHOLDER_IMAGE } from './ui.js';
+import { html, emptyState, PLACEHOLDER_IMAGE, LOGO_IMAGE } from './ui.js';
 import { revealOnScroll, tiltOnHover, watchHeader, bump } from './effects.js';
+import { worldControl } from './world-control.js';
 
 import { renderHome } from './pages/home.js';
 import { renderShop } from './pages/shop.js';
@@ -99,6 +100,14 @@ async function renderRoute() {
   updateHeader(path);
   window.scrollTo(0, 0);
 
+  // Le monde 3D : vol sur l'accueil (piloté par la page), ronde calme ailleurs, à l'arrêt dans l'admin.
+  const isHome = path === '/';
+  const isAdmin = path.startsWith('/admin');
+  document.body.classList.toggle('is-home', isHome);
+  document.body.classList.toggle('is-admin', isAdmin);
+  if (!isHome) worldControl.calm();
+  worldControl.pause(isAdmin);
+
   const cleanups = [revealOnScroll(view), tiltOnHover(view)];
   if (typeof mount === 'function') {
     try { cleanups.push(mount()); } catch (error) { console.error(error); }
@@ -149,6 +158,8 @@ async function start() {
   try {
     [state.config, state.categories] = await Promise.all([api.config(), api.categories()]);
   } catch (error) {
+    document.body.classList.add('is-loaded');
+    document.querySelector('[data-loader]')?.remove();
     renderError(document.getElementById('contenu'), error, () => location.reload());
     return;
   }
@@ -163,7 +174,17 @@ async function start() {
   document.querySelector('[data-age-settings]').addEventListener('click', ask);
   onAgeChange(refresh);
 
+  // Le monde 3D se charge en parallèle ; l'écran d'attente disparaît dès que la première
+  // page et la montagne sont prêtes (ou après quelques secondes, quoi qu'il arrive).
+  if (currentPath() === '/') worldControl.journey(0); // on arrive sur l'accueil : le monde démarre au début du vol
+  const worldReady = worldControl.start(document.getElementById('monde'), { logoUrl: LOGO_IMAGE });
+  window.__monde = worldControl; // accès pour les tests automatisés
+  const patience = new Promise((resolve) => setTimeout(resolve, 6000));
   startRouter(renderRoute);
+  Promise.race([worldReady, patience]).then(() => {
+    document.body.classList.add('is-loaded');
+    setTimeout(() => document.querySelector('[data-loader]')?.remove(), 900);
+  });
 }
 
 start();

@@ -1,4 +1,7 @@
-# Boutique 13 Étoiles : prototype
+# Boutique 13 Étoiles : version 3D (prototype)
+
+Ce dossier est une **copie** de `boutique-valais/`, transformée en expérience 3D immersive autour du Cervin.
+Le site d'origine n'est pas modifié : les deux versions vivent côte à côte et ne partagent ni panier, ni produits de démonstration.
 
 Ébauche de boutique en ligne pour vendre des vêtements et du merchandising aux couleurs du Valais.
 **Ce n'est pas un site de production** : les paiements sont simulés, aucun e-mail n'est envoyé,
@@ -6,9 +9,15 @@ et les produits et images sont factices.
 
 Ce que le prototype sait faire :
 
-- Accueil animé : scène 3D du Cervin la nuit, avec les 13 étoiles du drapeau en orbite et la neige qui tombe ; drapeau 3D de l'emblème qui flotte au vent ; bandeau défilant
+- **Un monde 3D autour du Cervin**, entièrement généré par le code (aucun modèle ni photo de montagne) : la pyramide et ses quatre arêtes, les sommets voisins, la mer de nuages, la neige, le ciel étoilé et la Voie lactée
+- **Accueil en cinq chapitres pilotés par le défilement** : la caméra vole autour du Cervin pendant que le jour se lève, de la nuit étoilée au premier rayon qui embrase le sommet en rouge
+  - les 13 étoiles se rassemblent en constellation, disposées comme sur le drapeau valaisan, puis forment une couronne autour du sommet
+  - les frontales des cordées montent l'arête du Hörnli avant l'aube ; un hameau éclairé brille au pied de la montagne
+  - le drapeau de la marque flotte au sommet, à 4 478 m
+  - un affichage de bord indique l'altitude de la caméra et l'heure
+- **La collection en carrousel 3D**, à faire tourner à la souris, au doigt ou au clavier
+- **La montagne reste en arrière-plan de toutes les pages**, en ronde lente de nuit, derrière un voile sombre
 - Animations discrètes dans tout le site : apparition au défilement, effet 3D au survol des photos produit, confirmation d'ajout au panier
-- Accueil avec les catégories et une sélection de produits
 - Boutique avec un filtre par catégorie : t-shirts, sweats, casquettes, autres vêtements, alcool, schnoupf
 - Fiche produit avec le choix de la couleur, de la taille et de la quantité
 - Panier avec les quantités modifiables et la livraison offerte dès CHF 80.–
@@ -25,11 +34,11 @@ Ce que le prototype sait faire :
 1. **Installez Node.js** : sur **https://nodejs.org**, téléchargez la version **LTS** et installez-la comme n'importe quel programme.
 2. **Téléchargez le site** avec ce lien direct :
    https://github.com/192bobba/192bobba.github.io/archive/refs/heads/claude/ecommerce-valais-prototype-9hvr0l.zip
-3. **Décompressez** le fichier et rangez le dossier où vous voulez (par exemple dans Documents). Le site se trouve dans le sous-dossier **`boutique-valais`**.
+3. **Décompressez** le fichier et rangez le dossier où vous voulez (par exemple dans Documents). Cette version 3D se trouve dans le sous-dossier **`boutique-valais-3d`** (la version d'origine est dans `boutique-valais`).
 
 ### Ensuite, à chaque fois : un double-clic
 
-Dans le dossier `boutique-valais` :
+Dans le dossier `boutique-valais-3d` :
 
 - **Windows** : double-cliquez sur `lancer-windows.bat`
 - **Mac** : double-cliquez sur `lancer-mac.command`. La toute première fois, si le Mac refuse de l'ouvrir, faites un clic droit sur le fichier, choisissez **Ouvrir**, puis confirmez.
@@ -41,7 +50,7 @@ sur **http://localhost:3000**. Vous n'avez plus jamais besoin de retélécharger
 > Sur Windows, faites un clic droit sur `lancer-windows.bat`, puis **Envoyer vers → Bureau (créer un raccourci)**.
 > Sur Mac, faites glisser `lancer-mac.command` sur le bureau en maintenant **Cmd + Option**.
 
-Si vous préférez le terminal, la commande `npm start`, tapée dans le dossier `boutique-valais`, fait exactement la même chose.
+Si vous préférez le terminal, la commande `npm start`, tapée dans le dossier `boutique-valais-3d`, fait exactement la même chose.
 
 ### Important : laissez la fenêtre noire ouverte
 
@@ -75,7 +84,8 @@ Fermez la fenêtre noire, ou appuyez sur **Ctrl + C** dans cette fenêtre.
 
 ### Version en ligne (depuis n'importe où)
 
-Le site est publié sur GitHub Pages : **https://192bobba.github.io/boutique-valais/**
+Une fois publiée sur GitHub Pages (branche `main`), cette version est à l'adresse : **https://192bobba.github.io/boutique-valais-3d/**
+(la version d'origine reste à l'adresse https://192bobba.github.io/boutique-valais/)
 
 Rien à installer ni à lancer : ouvrez simplement cette adresse dans Safari (sur l'iPad, « Partager → Sur
 l'écran d'accueil » ajoute même une icône comme une application).
@@ -174,6 +184,9 @@ envoyez vos photos et vos prix, et ils seront intégrés aux produits de départ
 
 | Je veux changer… | Fichier |
 |---|---|
+| Les textes des chapitres de l'accueil | `public/js/pages/home.js` |
+| Le vol de la caméra et la lumière (nuit, aube, matin) | `public/js/world/world.js` (tableaux `JOURNEY` et `PALETTE`) |
+| La forme du Cervin et du massif | `public/js/world/terrain.js` |
 | Nom de la boutique, frais de port, âge minimum | `data/settings.json` (utilisé aussi par la version en ligne) |
 | Mot de passe admin, port | `src/config.js` (version en ligne : `public/js/demo-store.js`) |
 | Les produits | Depuis l'**espace admin**, ou dans `data/products.json` (créé au premier lancement) |
@@ -191,7 +204,7 @@ par vos vraies photos, voir la partie 4 ci-dessus.
 ## 6. Organisation du code
 
 ```
-boutique-valais/
+boutique-valais-3d/
 ├── index.html             Page d'entrée de la version en ligne (redirige vers public/)
 ├── server.js              Serveur web du site
 ├── src/                   Code du serveur
@@ -206,7 +219,7 @@ boutique-valais/
 │   ├── css/style.css
 │   ├── img/               Logo et illustrations provisoires
 │   ├── uploads/           Photos envoyées depuis l'admin
-│   ├── vendor/three/      Bibliothèque 3D three.js (voir son README)
+│   ├── vendor/three/      Bibliothèque 3D three.js complète (voir son README)
 │   └── js/
 │       ├── app.js         Démarrage et navigation entre les pages
 │       ├── api.js         Accès aux données : serveur, ou démo en ligne si pas de serveur
@@ -217,7 +230,14 @@ boutique-valais/
 │       ├── pricing.js     Calcul des totaux
 │       ├── ui.js          Composants d'affichage réutilisables
 │       ├── effects.js     Animations d'interface (apparition au défilement, effet 3D au survol)
-│       ├── three/         Scènes 3D de l'accueil (Cervin étoilé, drapeau au vent)
+│       ├── world-control.js  Télécommande du monde 3D pour les pages (« vol » sur l'accueil, « calme » ailleurs)
+│       ├── world/         Le monde 3D :
+│       │   ├── world.js       moteur : trajectoire de la caméra, lumière de la nuit à l'aube, qualité adaptative
+│       │   ├── terrain.js     relief : le Cervin (faces, arêtes), les sommets voisins, les vallées
+│       │   ├── atmosphere.js  ciel, étoiles, mer de nuages, neige
+│       │   ├── emblem.js      les 13 étoiles, le drapeau du sommet, les frontales, le hameau
+│       │   └── noise.js       bruits procéduraux (relief, nuages)
+│       ├── three/         Drapeau 3D de la section « Notre emblème »
 │       └── pages/         Une page = un fichier (accueil, boutique, produit, panier, commande, confirmation, admin)
 ├── scripts/
 │   ├── start.js           Lancement : mise à jour automatique puis démarrage du serveur
@@ -228,10 +248,14 @@ boutique-valais/
 
 Choix techniques : Node.js sans aucune dépendance, JavaScript « vanilla » dans le navigateur (aucun
 framework, aucune compilation), et stockage dans des fichiers JSON. La 3D utilise three.js, inclus
-dans le projet : elle fonctionne donc aussi sans internet. Les animations se coupent automatiquement si
-l'appareil a activé le réglage « réduire les animations », et la 3D se met en pause quand elle n'est pas
-à l'écran, pour économiser la batterie. Les pages sont accessibles par des
-adresses du type `#/boutique/sweats` ou `#/produit/hoodie-valais-1815`.
+dans le projet : elle fonctionne donc aussi sans internet.
+
+Le monde 3D est pensé pour rester fluide et sobre :
+
+- la finesse de l'image s'adapte toute seule à la puissance de l'appareil ;
+- hors de l'accueil, la montagne tourne à 30 images par seconde ; dans l'admin, elle est à l'arrêt ;
+- si l'appareil a activé « réduire les animations », le monde ne s'anime plus tout seul (neige, étoiles, ronde) : il suit simplement le défilement ;
+- sans WebGL (très vieux navigateur), le site s'affiche sur un simple fond dégradé et reste entièrement utilisable.
 
 ---
 

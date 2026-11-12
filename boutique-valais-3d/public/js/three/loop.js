@@ -30,7 +30,7 @@ export function startLoop(container, render, { staticTime = 4 } = {}) {
 
   const tick = (now) => {
     frame = 0;
-    const dt = Math.min(0.05, (now - last) / 1000);
+    const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
     last = now;
     elapsed += dt;
     render(elapsed, dt);

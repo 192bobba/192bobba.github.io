@@ -24,12 +24,14 @@
 
 html { -webkit-text-size-adjust: 100%; }
 
+html { background: #05080F; }
+
 body {
   margin: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background: transparent;
   color: var(--fg);
   font-family: var(--font);
   font-size: 16px;
@@ -151,6 +153,7 @@ button { font: inherit; color: inherit; }
 .site-footer {
   margin-top: 56px;
   border-top: 1px solid var(--line);
+  background: var(--bg);
   font-size: 14px;
   color: var(--muted);
 }
@@ -292,76 +295,136 @@ button { font: inherit; color: inherit; }
 
 .empty-state .btn { margin-top: 8px; }
 
-/* ---- Accueil : bannière 3D ------------------------------------------- */
+/* ---- Le monde 3D en arrière-plan ---------------------------------------- */
 
-.hero-3d {
-  position: relative;
-  height: calc(100svh - 61px);
-  min-height: 580px;
-  max-height: 900px;
-  overflow: hidden;
-  background: linear-gradient(180deg, #05080F 0%, #0E1522 55%, #1B2433 100%);
-  color: #FFFFFF;
-  isolation: isolate;
+.world {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  background: linear-gradient(180deg, #02040A 0%, #0A1322 70%, #101B30 100%);
+  pointer-events: none;
 }
 
-.hero-scene { position: absolute; inset: 0; z-index: -2; }
-
-.scene-canvas {
+.world-canvas {
   display: block;
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition: opacity 1.4s ease;
+  transition: opacity 1.8s ease;
 }
 
-.is-ready > .scene-canvas { opacity: 1; }
+.world.is-ready .world-canvas { opacity: 1; }
 
-/* Image affichée si la 3D n'est pas disponible. */
-.hero-fallback {
-  position: absolute;
-  top: 12%;
-  left: 50%;
-  width: min(46vw, 320px);
-  transform: translateX(-50%);
-  opacity: .9;
-  transition: opacity .6s;
-}
-
-.is-ready > .hero-fallback,
-.is-ready > .flag-fallback { opacity: 0; pointer-events: none; }
-
-/* Voile sombre derrière le texte pour qu'il reste lisible. */
-.hero-3d::after {
+/* Vignette douce sur les bords de l'image. */
+.world::after {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: -1;
-  background: linear-gradient(180deg, rgba(5, 8, 15, 0) 34%, rgba(5, 8, 15, .62) 58%, rgba(5, 8, 15, .88) 100%);
+  background: radial-gradient(ellipse at 50% 45%, rgba(0, 0, 0, 0) 55%, rgba(2, 4, 10, .55) 100%);
+}
+
+/* Voile sombre posé sur le monde, sauf pendant le vol de l'accueil : le texte des pages reste lisible. */
+.world-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: rgba(8, 11, 18, .84);
+  opacity: 1;
+  transition: opacity 1s ease;
   pointer-events: none;
 }
 
-.hero-content {
+body.is-home .world-scrim { opacity: 0; }
+body.is-admin .world-scrim { background: rgba(8, 11, 18, .94); }
+
+/* ---- Écran d'attente ------------------------------------------------------ */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 18px;
+  background: #05080F;
+  color: var(--fg-soft);
+  font-size: 14px;
+  letter-spacing: .04em;
+  transition: opacity .8s ease, visibility .8s;
+}
+
+.loader img { width: 72px; height: 72px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .16); }
+.loader p { margin: 0; }
+
+.loader-bar {
+  width: 160px;
+  height: 1px;
+  background: rgba(255, 255, 255, .16);
+  overflow: hidden;
+}
+
+.loader-bar span {
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: #FFFFFF;
+  animation: loader 1.4s cubic-bezier(.6, 0, .3, 1) infinite;
+}
+
+body.is-loaded .loader { opacity: 0; visibility: hidden; }
+
+/* ---- Accueil : le vol autour du Cervin ------------------------------------ */
+
+.journey { position: relative; color: #FFFFFF; }
+
+/* Chaque chapitre dure une fois et demie la hauteur de l'écran : son texte reste
+   fixe un moment (« pin »), puis laisse la place au suivant. */
+.chapter { height: 150vh; height: 150svh; }
+
+.chapter-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 84px;
+  pointer-events: none;
+}
+
+/* Dégradé sombre derrière le texte. */
+.chapter-pin::before {
+  content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding-bottom: 56px;
-  transform: translateY(var(--parallax, 0px));
-  will-change: transform, opacity;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(3, 5, 11, 0) 38%, rgba(3, 5, 11, .5) 62%, rgba(3, 5, 11, .86) 100%);
+  opacity: var(--show, 0);
 }
 
-.hero-content .eyebrow { color: rgba(255, 255, 255, .7); }
+.chapter-pin > .container { position: relative; }
 
-.hero-title {
-  font-size: clamp(34px, 8.5vw, 64px);
-  line-height: 1.02;
-  letter-spacing: -.035em;
-  margin-bottom: 16px;
+.chapter-content {
+  max-width: 34rem;
+  opacity: var(--show, 0);
+  transform: translateY(calc((1 - var(--show, 0)) * 28px));
+}
+
+.chapter.is-active .chapter-content { pointer-events: auto; }
+
+.chapter .eyebrow { color: rgba(255, 255, 255, .72); }
+
+.hero-title,
+.chapter-title {
+  font-size: clamp(36px, 9vw, 76px);
+  line-height: 1;
+  letter-spacing: -.04em;
+  margin-bottom: 18px;
   max-width: 11em;
+  text-wrap: balance;
 }
 
-.hero-text { font-size: 17px; color: rgba(255, 255, 255, .78); max-width: 28em; margin-bottom: 26px; }
+.chapter-text { font-size: 17px; color: rgba(255, 255, 255, .82); max-width: 27em; margin-bottom: 26px; }
 
 .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
 
@@ -378,20 +441,55 @@ button { font: inherit; color: inherit; }
   cursor: pointer;
 }
 
-/* Entrée en scène du texte. */
-.hero-content > * { animation: rise-in .9s cubic-bezier(.2, .7, .2, 1) both; }
-.hero-content > :nth-child(2) { animation-delay: .12s; }
-.hero-content > :nth-child(3) { animation-delay: .24s; }
-.hero-content > :nth-child(4) { animation-delay: .36s; }
+/* Grand altimètre du chapitre « L'ascension ». */
+.altimeter {
+  margin: 0;
+  font-size: clamp(44px, 12vw, 104px);
+  font-weight: 600;
+  letter-spacing: -.045em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.journey-end { height: 70vh; height: 70svh; }
+
+/* Affichage de bord : étapes, altitude de la caméra, heure. */
+.hud {
+  position: fixed;
+  top: 76px;
+  right: 16px;
+  z-index: 5;
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+  color: rgba(255, 255, 255, .85);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  text-align: right;
+  pointer-events: none;
+  transition: opacity .3s;
+}
+
+.hud-steps { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.hud-steps li { width: 18px; height: 2px; background: rgba(255, 255, 255, .28); transition: background-color .4s, width .4s; }
+.hud-steps li.is-current { width: 34px; background: #FFFFFF; }
+
+.hud-data { display: flex; gap: 18px; margin: 0; }
+.hud-data dt { color: rgba(255, 255, 255, .55); font-size: 10px; }
+.hud-data dd { margin: 2px 0 0; font-size: 14px; font-weight: 600; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.hud-coords { display: none; margin: 0; color: rgba(255, 255, 255, .5); font-size: 10px; }
 
 .scroll-hint {
-  position: absolute;
-  right: 20px;
-  bottom: 24px;
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  z-index: 5;
   width: 1px;
   height: 44px;
   background: rgba(255, 255, 255, .25);
   overflow: hidden;
+  pointer-events: none;
 }
 
 .scroll-hint span {
@@ -400,6 +498,94 @@ button { font: inherit; color: inherit; }
   background: #FFFFFF;
   animation: scroll-hint 2.2s cubic-bezier(.6, 0, .2, 1) infinite;
 }
+
+/* Après le vol : le contenu remonte et recouvre peu à peu la montagne. */
+.after-journey {
+  position: relative;
+  background: linear-gradient(180deg, rgba(8, 11, 18, 0) 0, rgba(8, 11, 18, .72) 36vh, rgba(8, 11, 18, .9) 90vh, var(--bg) 160vh);
+}
+
+/* ---- La collection en carrousel 3D ---------------------------------------- */
+
+.showcase { padding: 12vh 0 56px; overflow: hidden; }
+.showcase .section-head { align-items: end; }
+.showcase h2 { font-size: clamp(28px, 6vw, 46px); letter-spacing: -.035em; margin: 0; }
+
+.ring-stage {
+  --ring-radius: 300px;
+  position: relative;
+  height: 400px;
+  margin-top: 8px;
+  perspective: 1500px;
+  perspective-origin: 50% 42%;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+
+.ring-stage.is-dragging { cursor: grabbing; }
+
+.ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  transform: translateZ(calc(var(--ring-radius) * -1)) rotateY(var(--ring-rotation, 0deg));
+}
+
+.ring-card {
+  position: absolute;
+  left: -86px;
+  top: -150px;
+  width: 172px;
+  display: block;
+  color: var(--fg);
+  text-decoration: none;
+  transform: rotateY(var(--ring-angle, 0deg)) translateZ(var(--ring-radius));
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-user-drag: none;
+}
+
+.ring-card-media {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  transition: border-color .3s, box-shadow .3s;
+}
+
+.ring-card.is-front .ring-card-media { border-color: rgba(255, 255, 255, .4); box-shadow: 0 24px 60px rgba(0, 0, 0, .55); }
+.ring-card img { width: 100%; aspect-ratio: 1; object-fit: cover; pointer-events: none; }
+.ring-card-body { display: block; padding-top: 10px; text-align: center; }
+.ring-card-title { display: block; font-size: 14px; font-weight: 500; line-height: 1.3; }
+.ring-card-price { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+.ring-button {
+  position: absolute;
+  top: 38%;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: rgba(8, 11, 18, .6);
+  color: var(--fg);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+.ring-button:hover { border-color: var(--fg); }
+.ring-prev { left: 12px; }
+.ring-next { right: 12px; }
+
+.ring-hint { margin: 0; text-align: center; font-size: 13px; color: var(--muted); }
 
 /* ---- Bandeau défilant ------------------------------------------------- */
 
@@ -1133,11 +1319,14 @@ button { font: inherit; color: inherit; }
 
 @media (min-width: 860px) {
   .header-inner { height: 68px; }
-  .hero-content { top: 50%; bottom: auto; padding-bottom: 0; transform: translateY(calc(-50% + var(--parallax, 0px))); }
-  .hero-content > * { max-width: 560px; }
-  .hero-3d::after { background: linear-gradient(90deg, rgba(5, 8, 15, .7) 0%, rgba(5, 8, 15, .25) 45%, rgba(5, 8, 15, 0) 70%); }
-  .hero-fallback { left: auto; right: 8%; top: 50%; width: 34vw; max-width: 420px; transform: translateY(-50%); }
-  .scroll-hint { right: auto; left: 50%; bottom: 28px; }
+  .chapter-pin { align-items: center; padding-bottom: 0; }
+  .chapter-pin::before { background: linear-gradient(90deg, rgba(3, 5, 11, .78) 0%, rgba(3, 5, 11, .32) 42%, rgba(3, 5, 11, 0) 66%); }
+  .hud { top: auto; bottom: 34px; right: 32px; gap: 12px; }
+  .hud-coords { display: block; }
+  .ring-stage { height: 500px; }
+  .ring-card { left: -115px; top: -180px; width: 230px; }
+  .ring-prev { left: 5%; }
+  .ring-next { right: 5%; }
   .brand-story-inner { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 48px; padding-top: 24px; padding-bottom: 24px; }
   .product-detail { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 56px; align-items: start; }
   .product-media { position: sticky; top: 92px; }
@@ -1151,8 +1340,9 @@ button { font: inherit; color: inherit; }
 
 /* ---- Animations ------------------------------------------------------- */
 
-/* Chaque page arrive en fondu. */
-.view { animation: view-in .5s ease both; }
+/* Chaque page arrive en fondu (sans déplacement : un « transform » animé sur la vue
+   empêcherait l'affichage de bord, en position fixe, de rester accroché à l'écran). */
+.view { animation: view-in .6s ease backwards; }
 
 /* Apparition au défilement (classe ajoutée par effects.js). */
 .reveal {
@@ -1167,9 +1357,10 @@ button { font: inherit; color: inherit; }
 /* Bouton « Ajouter au panier » confirmé. */
 .btn.is-added { animation: pop .45s cubic-bezier(.3, 1.6, .5, 1); }
 
-@keyframes view-in { from { opacity: 0; transform: translateY(10px); } }
+@keyframes view-in { from { opacity: 0; } }
 @keyframes rise-in { from { opacity: 0; transform: translateY(24px); } }
 @keyframes marquee { to { transform: translateX(-50%); } }
+@keyframes loader { from { transform: translateX(-120%); } to { transform: translateX(320%); } }
 @keyframes scroll-hint { 0% { transform: translateY(-100%); } 60%, 100% { transform: translateY(100%); } }
 @keyframes bump { 40% { transform: scale(1.3) rotate(-8deg); } }
 @keyframes pop { 40% { transform: scale(1.04); } }

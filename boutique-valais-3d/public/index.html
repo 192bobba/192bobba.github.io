@@ -12,6 +12,17 @@
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
+  <!-- Le monde 3D (le Cervin) vit derrière toutes les pages. -->
+  <div id="monde" class="world" aria-hidden="true"></div>
+  <div class="world-scrim" aria-hidden="true"></div>
+
+  <!-- Écran d'attente, le temps de dessiner la montagne. -->
+  <div class="loader" data-loader role="status">
+    <img src="img/logo.jpg" alt="" width="72" height="72">
+    <p>Le jour se lève sur le Cervin…</p>
+    <span class="loader-bar"><span></span></span>
+  </div>
+
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="#/">

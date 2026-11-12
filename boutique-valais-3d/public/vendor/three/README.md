@@ -2,7 +2,7 @@
 
 Bibliothèque 3D utilisée pour les animations de la page d'accueil (licence MIT, voir `LICENSE.txt`).
 
-`three.min.js` ne contient que les éléments listés dans `entry.js`, pour rester léger.
+`three.min.js` contient la bibliothèque complète (voir `entry.js`), nécessaire au monde 3D de cette version.
 Pour le régénérer (par exemple après avoir ajouté un élément à `entry.js`) :
 
 ```
