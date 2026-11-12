@@ -179,6 +179,20 @@ async function start() {
   if (currentPath() === '/') worldControl.journey(0); // on arrive sur l'accueil : le monde démarre au début du vol
   const worldReady = worldControl.start(document.getElementById('monde'), { logoUrl: LOGO_IMAGE });
   window.__monde = worldControl; // accès pour les tests automatisés
+
+  // Diagnostic : ajouter « ?diag » à l'adresse affiche le rythme réel de la 3D sur cet appareil.
+  if (location.search.includes('diag')) {
+    const box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:500;padding:8px 10px;background:#000c;color:#fff;font:12px/1.5 monospace;white-space:pre';
+    document.body.append(box);
+    let before = 0;
+    setInterval(() => {
+      const info = worldControl.info();
+      if (!info) { box.textContent = '3D : indisponible'; return; }
+      box.textContent = `3D : ${info.frames - before} images/s\nimage : ${info.resolution}\nmode économie : ${info.economy ? 'oui' : 'non'}`;
+      before = info.frames;
+    }, 1000);
+  }
   const patience = new Promise((resolve) => setTimeout(resolve, 6000));
   startRouter(renderRoute);
   Promise.race([worldReady, patience]).then(() => {
