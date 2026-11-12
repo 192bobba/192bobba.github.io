@@ -384,10 +384,10 @@
     "semantic_hash": "2a3ae929dcfc62f9d62ca464c83155f6"
   },
   "README.md": {
-    "mtime": 1794191927.2763433,
-    "seen": 1794194746.3615546,
-    "ast_hash": "c8211eea4d59cbf05629f052e903148c",
-    "semantic_hash": "c8211eea4d59cbf05629f052e903148c"
+    "mtime": 1794407373.6466296,
+    "seen": 1794454174.9705024,
+    "ast_hash": "d552d218915a7ade06cadf1f9dbbe53f",
+    "semantic_hash": ""
   },
   "boutique-valais/README.md": {
     "mtime": 1794191908.2926128,
@@ -436,5 +436,287 @@
     "seen": 1794194746.3615606,
     "ast_hash": "2d6c21470f3c5062a5b4af75b8c2f541",
     "semantic_hash": "2d6c21470f3c5062a5b4af75b8c2f541"
+  },
+  "boutique-valais-3d/data/categories.json": {
+    "mtime": 1794191908.2926128,
+    "seen": 1794454174.9703834,
+    "ast_hash": "c173ccff23f5442559877a18888d7f37",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/data/products.demo.json": {
+    "mtime": 1794191908.2928421,
+    "seen": 1794454174.9703865,
+    "ast_hash": "ad11baf9f6bb91739647fd8b1184cfae",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/data/settings.json": {
+    "mtime": 1794191908.2929494,
+    "seen": 1794454174.9703877,
+    "ast_hash": "d57cb3e279241dde07aeb5e102680700",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/package.json": {
+    "mtime": 1794368677.7366092,
+    "seen": 1794454174.9703898,
+    "ast_hash": "68be3cbfc263810eb6dfc3e833d03eef",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/age-gate.js": {
+    "mtime": 1794368677.7341917,
+    "seen": 1794454174.9703956,
+    "ast_hash": "960b38d03c27a82d118e8b81e61c8e57",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/api.js": {
+    "mtime": 1794368677.7344825,
+    "seen": 1794454174.9703965,
+    "ast_hash": "fe1860b063469f9566a3a09f11cbafa8",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/app.js": {
+    "mtime": 1794407303.5855715,
+    "seen": 1794454174.9703975,
+    "ast_hash": "d25358156f60627fdaaa213a7e903b6e",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/cart.js": {
+    "mtime": 1794368677.7345686,
+    "seen": 1794454174.970399,
+    "ast_hash": "bcc96a07f6204175f5154a40613220dd",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/demo-store.js": {
+    "mtime": 1794368677.7343726,
+    "seen": 1794454174.9704006,
+    "ast_hash": "35d60998854c212cdf6e882e2ca4f46a",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/effects.js": {
+    "mtime": 1794191908.299507,
+    "seen": 1794454174.9704018,
+    "ast_hash": "49dc43942fcc54cf86c84afaec308d61",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/pages/admin.js": {
+    "mtime": 1794191908.299507,
+    "seen": 1794454174.9704027,
+    "ast_hash": "5386a7ce6e45559bd5031056921ef405",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/pages/cart.js": {
+    "mtime": 1794191908.3004665,
+    "seen": 1794454174.970404,
+    "ast_hash": "48e8b64ba7279ed5e3497c395aee807c",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/pages/checkout.js": {
+    "mtime": 1794368677.734675,
+    "seen": 1794454174.9704049,
+    "ast_hash": "917fcb5d5446293350fc9bef665bf5ff",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/pages/confirmation.js": {
+    "mtime": 1794191908.3004665,
+    "seen": 1794454174.970412,
+    "ast_hash": "2c641e6a7c6af71dcc6623563c3acf94",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/pages/home.js": {
+    "mtime": 1794369575.4565902,
+    "seen": 1794454174.970413,
+    "ast_hash": "10ae6f24317fedb5b9ac5a9081d2d19d",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/pages/product.js": {
+    "mtime": 1794191908.301248,
+    "seen": 1794454174.9704142,
+    "ast_hash": "161ca17404009b004c8dc04cd7ac1aa8",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/pages/shop.js": {
+    "mtime": 1794191908.3013937,
+    "seen": 1794454174.9704149,
+    "ast_hash": "8b4e5ac2bc5040778ac52f9e3f031627",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/pricing.js": {
+    "mtime": 1794191908.3013937,
+    "seen": 1794454174.9704158,
+    "ast_hash": "8e0b2a613c92f5e8b29dfb4310c9518e",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/router.js": {
+    "mtime": 1794191908.3013937,
+    "seen": 1794454174.9704165,
+    "ast_hash": "5025351db1546b12b8edab712418a4cd",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/shared/age.js": {
+    "mtime": 1794191908.3013937,
+    "seen": 1794454174.9704175,
+    "ast_hash": "3146d4fee31f823cd979668037e135fd",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/shared/errors.js": {
+    "mtime": 1794191908.3017967,
+    "seen": 1794454174.9704187,
+    "ast_hash": "6022f0077c3a69447d1d4fc150acff8b",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/shared/orders.js": {
+    "mtime": 1794191908.301931,
+    "seen": 1794454174.9704194,
+    "ast_hash": "dc696c2d25eb7813ddc6d6ebf3b9e2d9",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/shared/products.js": {
+    "mtime": 1794191908.3022475,
+    "seen": 1794454174.9704206,
+    "ast_hash": "9db6129dd07506c88bf79f5000db295d",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/state.js": {
+    "mtime": 1794191908.3022475,
+    "seen": 1794454174.9704213,
+    "ast_hash": "efcf75b55dcd589cd385468bc4208ffc",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/three/flag-scene.js": {
+    "mtime": 1794191908.3022475,
+    "seen": 1794454174.9704223,
+    "ast_hash": "63f96d36735945394b771e3f6277eea8",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/three/loop.js": {
+    "mtime": 1794407257.8036203,
+    "seen": 1794454174.970423,
+    "ast_hash": "84ab03fcaa81fa70d8476539016a3873",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/ui.js": {
+    "mtime": 1794191908.3027027,
+    "seen": 1794454174.9704237,
+    "ast_hash": "374120286e2a455e3727693ebec4fe17",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/world-control.js": {
+    "mtime": 1794407303.5851738,
+    "seen": 1794454174.9704247,
+    "ast_hash": "79acf073bc0dba557e063247bce34d35",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/world/atmosphere.js": {
+    "mtime": 1794406133.380851,
+    "seen": 1794454174.9704254,
+    "ast_hash": "88bc9f69303a25b372701763a34b6aa1",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/world/emblem.js": {
+    "mtime": 1794407257.803112,
+    "seen": 1794454174.970426,
+    "ast_hash": "a26db724b579356c82c07769252bebe6",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/world/noise.js": {
+    "mtime": 1794368828.8645635,
+    "seen": 1794454174.9704268,
+    "ast_hash": "f270cfd38e8e154339c5ad588214728d",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/world/terrain.js": {
+    "mtime": 1794406295.5522468,
+    "seen": 1794454174.9704278,
+    "ast_hash": "22318aaffafbcd8cda0b805e1a3671ad",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/js/world/world.js": {
+    "mtime": 1794407303.5847785,
+    "seen": 1794454174.9704285,
+    "ast_hash": "4af89a827deb062b49a4728c10ba9438",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/scripts/reset.js": {
+    "mtime": 1794191908.3032565,
+    "seen": 1794454174.9704292,
+    "ast_hash": "66f2bc5fe92fdc206b25be0bfc8d9545",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/scripts/start.js": {
+    "mtime": 1794191908.3066425,
+    "seen": 1794454174.97043,
+    "ast_hash": "3a85f9b7d34edf8f6a9c29d703c9717a",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/scripts/update.js": {
+    "mtime": 1794191908.3066425,
+    "seen": 1794454174.9704304,
+    "ast_hash": "69ff987c0822970076aff6a514032bb6",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/server.js": {
+    "mtime": 1794191908.3066425,
+    "seen": 1794454174.9704313,
+    "ast_hash": "eed65c16a01e37a6d9465d512aceee1f",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/src/api.js": {
+    "mtime": 1794191908.3066425,
+    "seen": 1794454174.970432,
+    "ast_hash": "fd2ef4c35a9348afeb29fb1217fb514d",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/src/auth.js": {
+    "mtime": 1794191908.3072848,
+    "seen": 1794454174.9704328,
+    "ast_hash": "30fce4d60176c29972f5c935b3d139eb",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/src/config.js": {
+    "mtime": 1794191908.3072848,
+    "seen": 1794454174.9704335,
+    "ast_hash": "9043b1e6b15273b545aea52711bf61c0",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/src/http.js": {
+    "mtime": 1794191908.3072848,
+    "seen": 1794454174.9704342,
+    "ast_hash": "f96b623a5224d5461f2a072a161af8b0",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/src/paths.js": {
+    "mtime": 1794191908.3072848,
+    "seen": 1794454174.9704351,
+    "ast_hash": "6dd07ba4054e0dab08aa6fc8fc6fa42a",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/src/store.js": {
+    "mtime": 1794191908.3072848,
+    "seen": 1794454174.970436,
+    "ast_hash": "99f238d7900951a7ca8c9ffea3de2897",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/README.md": {
+    "mtime": 1794407381.766724,
+    "seen": 1794454174.9705033,
+    "ast_hash": "266c9796d350e9996e7e5a6ea9bef6a3",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/index.html": {
+    "mtime": 1794191908.2929494,
+    "seen": 1794454174.9705048,
+    "ast_hash": "613599a0408d11b52271532f0b6c8a91",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/public/index.html": {
+    "mtime": 1794369589.4005902,
+    "seen": 1794454174.9705052,
+    "ast_hash": "d9a3f9c15d6a3025b113d77b1add0214",
+    "semantic_hash": ""
+  },
+  "boutique-valais-3d/version.txt": {
+    "mtime": 1794191908.3072848,
+    "seen": 1794454174.9705062,
+    "ast_hash": "f36cb0d62c13fbcf56c3f70e9d251b2f",
+    "semantic_hash": ""
   }
 }
