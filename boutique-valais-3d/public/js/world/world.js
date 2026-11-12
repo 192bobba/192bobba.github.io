@@ -127,17 +127,34 @@ export function createWorld(container, { logoUrl, initial = {} }) {
   const canvas = document.createElement('canvas');
   canvas.className = 'world-canvas';
   try {
-    renderer = new WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+    // Le lissage des contours coûte cher sur les écrans denses, où il se voit à peine.
+    renderer = new WebGLRenderer({ canvas, antialias: (window.devicePixelRatio || 1) < 1.5, powerPreference: 'high-performance' });
   } catch {
     return null; // pas de 3D sur cet appareil : le site reste utilisable, sur fond uni
   }
   renderer.toneMapping = ACESFilmicToneMapping;
   container.append(canvas);
 
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Mode « image fixe » : le monde n'est redessiné que lorsque la vue change (défilement,
+  // changement de page). Il s'active si l'utilisateur a demandé moins d'animations, si
+  // l'appareil n'a pas d'accélération graphique, ou s'il reste trop lent malgré tout.
+  let reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let economy = false;
+  try {
+    const probe = document.createElement('canvas');
+    const options = { failIfMajorPerformanceCaveat: true };
+    economy = !(probe.getContext('webgl2', options) || probe.getContext('webgl', options));
+  } catch { economy = true; }
+  if (location.search.includes('qualite=fixe')) economy = false;
+  if (economy) reduced = true;
   const mobile = window.matchMedia('(max-width: 760px), (pointer: coarse)').matches;
-  const maxPixelRatio = Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.75);
-  let pixelRatio = maxPixelRatio;
+  // Budget : nombre de points réellement calculés par image, quel que soit l'écran.
+  // On démarre léger ; le budget monte si l'appareil suit, et chute dès qu'il peine.
+  const MIN_BUDGET = 160000;
+  const MAX_BUDGET = mobile ? 1300000 : 2000000;
+  const maxPixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+  let budget = economy ? 260000 : mobile ? 550000 : 800000;
+  let pixelRatio = 1;
 
   const scene = new Scene();
   const camera = new PerspectiveCamera(38, 1, 0.3, 1400);
@@ -170,10 +187,10 @@ export function createWorld(container, { logoUrl, initial = {} }) {
   };
 
   const sky = createSky(uniforms);
-  const skyStars = createSkyStars(uniforms, mobile ? 1700 : 2600);
-  const terrain = createTerrain(uniforms);
-  const clouds = createClouds(uniforms, mobile ? 2 : 3);
-  const snow = createSnow(uniforms, mobile ? 2600 : 5000);
+  const skyStars = createSkyStars(uniforms, mobile ? 1200 : 2200);
+  const terrain = createTerrain(uniforms, mobile ? { near: 150, far: 80 } : { near: 200, far: 110 });
+  const clouds = createClouds(uniforms, 2);
+  const snow = createSnow(uniforms, mobile ? 1800 : 3500);
   const emblem = createEmblem(uniforms, { logoUrl });
   snow.material.uniforms.uHeight = uniforms.uViewHeight;
   scene.add(sky, skyStars, terrain, ...clouds, snow, emblem.group);
@@ -188,7 +205,7 @@ export function createWorld(container, { logoUrl, initial = {} }) {
   let mode = initial.mode === 'journey' ? 'journey' : 'calm';
   let journeyProgress = initial.progress || 0;
   // Entrée en scène : au tout premier affichage, la caméra arrive de plus haut et plus loin.
-  let intro = reduced ? 0 : 1;
+  let intro = reduced ? 0 : 1; // (pas d'entrée en scène en image fixe)
   let manual = false; // images produites une à une par step() (tests, enregistrement vidéo)
   let calmAngle = 2.2;
   let started = false;
@@ -249,10 +266,23 @@ export function createWorld(container, { logoUrl, initial = {} }) {
     renderer.toneMappingExposure = palette.exposure;
   }
 
+  // Applique le budget : finesse de l'image et détails secondaires.
+  function applyQuality() {
+    pixelRatio = Math.min(maxPixelRatio, Math.sqrt(budget / Math.max(1, width * height)));
+    const low = budget < 330000;
+    clouds.forEach((cloud, i) => { cloud.visible = i === 0 || !low; });
+    snow.visible = budget > 220000;
+    renderer.setPixelRatio(pixelRatio);
+    renderer.setSize(width, height, false);
+    uniforms.uPixelRatio.value = pixelRatio;
+    uniforms.uViewHeight.value = height * pixelRatio;
+  }
+
   function resize() {
     width = container.clientWidth || window.innerWidth;
     height = container.clientHeight || window.innerHeight;
     aspect = width / height;
+    pixelRatio = Math.min(maxPixelRatio, Math.sqrt(budget / Math.max(1, width * height)));
     renderer.setPixelRatio(pixelRatio);
     renderer.setSize(width, height, false);
     uniforms.uPixelRatio.value = pixelRatio;
@@ -266,10 +296,11 @@ export function createWorld(container, { logoUrl, initial = {} }) {
   let elapsed = 0;
   let last = performance.now();
   let frame = 0;
-  let slowFrames = 0;
-  let fastFrames = 0;
-  let sampleCount = 0;
-  let sampleTime = 0;
+  let windowTime = 0;
+  let windowFrames = 0;
+  let calmWindows = 0;
+  let slowWindows = 0;
+  let frameCount = 0;
 
   function render(now) {
     frame = 0;
@@ -288,6 +319,7 @@ export function createWorld(container, { logoUrl, initial = {} }) {
 
   // Calcule et dessine une image, « realDt » secondes après la précédente.
   function drawFrame(realDt) {
+    frameCount += 1;
     const now = performance.now();
     const calm = mode === 'calm';
     const dt = Math.min(0.05, realDt);
@@ -343,23 +375,33 @@ export function createWorld(container, { logoUrl, initial = {} }) {
     renderer.render(scene, camera);
 
     // Qualité adaptative : si l'appareil peine, on réduit la finesse de l'image.
-    sampleTime += performance.now() - now;
-    sampleCount += 1;
-    if (!calm && adaptive && !manual) {
-      if (dt > 0.026) slowFrames += 1;
-      else if (dt < 0.019) fastFrames += 1;
-      if (sampleCount >= 45) {
-        if (slowFrames > 22 && pixelRatio > 0.7) {
-          pixelRatio = Math.max(0.7, pixelRatio * 0.84);
-          resize();
-        } else if (fastFrames > 42 && sampleTime / sampleCount < 7 && pixelRatio < maxPixelRatio) {
-          pixelRatio = Math.min(maxPixelRatio, pixelRatio * 1.08);
-          resize();
+    // Qualité adaptative, réévaluée chaque seconde d'après le rythme réel des images.
+    if (adaptive && !manual && !reduced && realDt > 0) {
+      windowTime += realDt;
+      windowFrames += 1;
+      if (windowTime >= 1) {
+        const frameMs = (windowTime / windowFrames) * 1000;
+        const target = calm ? 36 : 19; // on vise 30 images/s en arrière-plan, 60 pendant le vol
+        if (frameMs > target * 1.25) {
+          // Trop lent : on réduit d'un coup, proportionnellement au retard.
+          budget = Math.max(MIN_BUDGET, budget * Math.max(0.35, Math.min(0.85, target / frameMs)));
+          applyQuality();
+        } else if (frameMs < target * 1.05 && budget < MAX_BUDGET && ++calmWindows >= 3) {
+          budget = Math.min(MAX_BUDGET, budget * 1.2);
+          calmWindows = 0;
+          applyQuality();
         }
-        slowFrames = 0;
-        fastFrames = 0;
-        sampleCount = 0;
-        sampleTime = 0;
+        if (frameMs > target * 1.25) calmWindows = 0;
+        // Au minimum de qualité et toujours très lent : on passe en image fixe.
+        if (budget <= MIN_BUDGET && frameMs > 70 && ++slowWindows >= 2) {
+          economy = true;
+          reduced = true;
+          intro = 0;
+          budget = 300000; // image fixe : on peut se permettre un peu plus de finesse
+          applyQuality();
+        }
+        windowTime = 0;
+        windowFrames = 0;
       }
     }
   }
@@ -397,7 +439,9 @@ export function createWorld(container, { logoUrl, initial = {} }) {
     canvas,
     // Vol de la page d'accueil : p de 0 (nuit, vue large) à 1 (matin, vue d'ensemble).
     setJourney(progress) {
+      const changed = mode !== 'journey' || Math.abs(progress - journeyProgress) > 0.0015;
       mode = 'journey';
+      if (!changed) return;
       journeyProgress = progress;
       if (reduced) resume();
     },
@@ -426,6 +470,9 @@ export function createWorld(container, { logoUrl, initial = {} }) {
         altitude: Math.round(altitudeMeters(camera.position.y)),
         clock: `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`,
         time: current.time,
+        economy,
+        frames: frameCount,
+        resolution: `${canvas.width}×${canvas.height}`,
       };
     },
     dispose() {
