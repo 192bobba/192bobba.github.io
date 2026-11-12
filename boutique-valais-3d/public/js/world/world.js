@@ -204,6 +204,9 @@ export function createWorld(container, { logoUrl, initial = {} }) {
 
   let mode = initial.mode === 'journey' ? 'journey' : 'calm';
   let journeyProgress = initial.progress || 0;
+  // Avancement lissé : la caméra glisse vers la position demandée, comme sur un travelling,
+  // au lieu de reproduire chaque cran de molette.
+  let glideProgress = journeyProgress;
   // Entrée en scène : au tout premier affichage, la caméra arrive de plus haut et plus loin.
   let intro = reduced ? 0 : 1; // (pas d'entrée en scène en image fixe)
   let manual = false; // images produites une à une par step() (tests, enregistrement vidéo)
@@ -218,7 +221,7 @@ export function createWorld(container, { logoUrl, initial = {} }) {
 
   function computeGoal(time) {
     if (mode === 'journey') {
-      sampleJourney(journeyProgress, goal);
+      sampleJourney(glideProgress, goal);
     } else {
       // Ronde lente autour du massif, de nuit.
       goal.pos.set(Math.cos(calmAngle) * 47, 11, Math.sin(calmAngle) * 47);
@@ -299,16 +302,13 @@ export function createWorld(container, { logoUrl, initial = {} }) {
   let windowTime = 0;
   let windowFrames = 0;
   let calmWindows = 0;
+  let ceiling = MAX_BUDGET; // finesse maximale que l'appareil tient sans ralentir
   let slowWindows = 0;
   let frameCount = 0;
 
   function render(now) {
     frame = 0;
     // En arrière-plan des pages, 30 images par seconde suffisent.
-    if (mode === 'calm' && started && now - last < 30) {
-      schedule();
-      return;
-    }
     // Après une longue tâche, le navigateur peut fournir une image « datée » d'avant le dernier
     // repère : on n'accepte jamais une durée négative.
     const realDt = Math.min(0.3, Math.max(0, (now - last) / 1000));
@@ -330,8 +330,12 @@ export function createWorld(container, { logoUrl, initial = {} }) {
     }
     uniforms.uTime.value = elapsed;
 
+    // Deux lissages enchaînés : d'abord l'avancement dans le vol, puis la caméra elle-même.
+    // Le mouvement démarre et s'arrête en douceur, sans jamais saccader.
+    if (!started || reduced) glideProgress = journeyProgress;
+    else glideProgress += (journeyProgress - glideProgress) * (1 - Math.exp(-realDt * 2.6));
     computeGoal(elapsed);
-    const k = !started || reduced ? 1 : 1 - Math.exp(-realDt * (calm ? 1.6 : 4.2));
+    const k = !started || reduced ? 1 : 1 - Math.exp(-realDt * (calm ? 1.4 : 5));
     current.pos.lerp(goal.pos, k);
     current.target.lerp(goal.target, k);
     current.time = lerp(current.time, goal.time, k);
@@ -381,13 +385,16 @@ export function createWorld(container, { logoUrl, initial = {} }) {
       windowFrames += 1;
       if (windowTime >= 1) {
         const frameMs = (windowTime / windowFrames) * 1000;
-        const target = calm ? 36 : 19; // on vise 30 images/s en arrière-plan, 60 pendant le vol
+        const target = 19; // on vise 60 images par seconde, partout
         if (frameMs > target * 1.25) {
           // Trop lent : on réduit d'un coup, proportionnellement au retard.
+          // On retient le niveau qui a posé problème : on ne remontera plus jusque-là
+          // (sinon la qualité oscille, et chaque changement provoque un accroc).
+          ceiling = Math.max(MIN_BUDGET, budget * 0.92);
           budget = Math.max(MIN_BUDGET, budget * Math.max(0.35, Math.min(0.85, target / frameMs)));
           applyQuality();
-        } else if (frameMs < target * 1.05 && budget < MAX_BUDGET && ++calmWindows >= 3) {
-          budget = Math.min(MAX_BUDGET, budget * 1.2);
+        } else if (frameMs < target * 0.95 && budget < ceiling && ++calmWindows >= 4) {
+          budget = Math.min(ceiling, budget * 1.15);
           calmWindows = 0;
           applyQuality();
         }

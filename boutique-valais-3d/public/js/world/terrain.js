@@ -6,7 +6,7 @@
 // Le Cervin est construit comme une vraie pyramide à quatre faces (nord, est, sud, ouest) :
 // les arêtes du Hörnli, de Zmutt, du Lion et de Furggen naissent là où deux faces se rencontrent.
 
-import { BufferAttribute, BufferGeometry, DoubleSide, Group, Mesh, ShaderMaterial } from '../../vendor/three/three.min.js';
+import { BufferAttribute, BufferGeometry, FrontSide, Group, Mesh, ShaderMaterial } from '../../vendor/three/three.min.js';
 import { fbm, hash, noise, ridged, smoothstep } from './noise.js';
 
 export const SUMMIT_Y = 14.4;
@@ -351,7 +351,7 @@ export function createTerrain(uniforms, detail = { near: 200, far: 110 }) {
   const material = new ShaderMaterial({
     vertexShader,
     fragmentShader,
-    side: DoubleSide,
+    side: FrontSide, // seul le dessus du relief est dessiné
     uniforms: {
       uNoise: uniforms.uNoise,
       uSunDir: uniforms.uSunDir,
