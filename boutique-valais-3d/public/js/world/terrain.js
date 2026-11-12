@@ -346,7 +346,8 @@ const fragmentShader = /* glsl */ `
   }
 `;
 
-export function createTerrain(uniforms) {
+// detail : nombre de cases du maillage proche et du maillage lointain.
+export function createTerrain(uniforms, detail = { near: 200, far: 110 }) {
   const material = new ShaderMaterial({
     vertexShader,
     fragmentShader,
@@ -368,9 +369,9 @@ export function createTerrain(uniforms) {
 
   const group = new Group();
   // Le Cervin et ses abords, finement maillés…
-  const near = new Mesh(gridGeometry({ size: 68, cells: 250, skirt: 3 }), material);
+  const near = new Mesh(gridGeometry({ size: 68, cells: detail.near, skirt: 3 }), material);
   // … et le reste du massif, plus grossier (on ne le voit que de loin).
-  const far = new Mesh(gridGeometry({ size: 400, cells: 150, hole: 34, sink: 0.7 }), material);
+  const far = new Mesh(gridGeometry({ size: 400, cells: detail.far, hole: 34, sink: 0.7 }), material);
   near.frustumCulled = false;
   far.frustumCulled = false;
   group.add(near, far);

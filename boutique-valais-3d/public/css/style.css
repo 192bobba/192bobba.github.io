@@ -90,8 +90,7 @@ button { font: inherit; color: inherit; }
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(10, 14, 21, .82);
-  backdrop-filter: blur(10px);
+  background: rgba(10, 14, 21, .92);
   border-bottom: 1px solid var(--line);
 }
 
@@ -578,7 +577,6 @@ body.is-loaded .loader { opacity: 0; visibility: hidden; }
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
-  backdrop-filter: blur(6px);
 }
 
 .ring-button:hover { border-color: var(--fg); }
