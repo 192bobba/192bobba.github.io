@@ -1,5 +1,5 @@
 {
-"updated": 1794360490,
+"updated": 1794450595,
 "tickers": [
 {
 "ticker": "AMD",
@@ -733,7 +733,7 @@
 "ticker": "^STOXX50E",
 "file": "INDEX_STOXX50E.json",
 "name": "EURO STOXX 50 I",
-"currency": "EUR",
+"currency": "",
 "type": "INDEX"
 },
 {
