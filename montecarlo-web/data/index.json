@@ -1,5 +1,5 @@
 {
-"updated": 1795229177,
+"updated": 1795498234,
 "tickers": [
 {
 "ticker": "AMD",
@@ -733,7 +733,7 @@
 "ticker": "^STOXX50E",
 "file": "INDEX_STOXX50E.json",
 "name": "EURO STOXX 50 I",
-"currency": "",
+"currency": "EUR",
 "type": "INDEX"
 },
 {
@@ -774,7 +774,7 @@
 {
 "ticker": "CL=F",
 "file": "CL_EQ_F.json",
-"name": "Crude Oil Dec 26",
+"name": "Crude Oil Jan 27",
 "currency": "USD",
 "type": "FUTURE"
 },
